@@ -1,11 +1,16 @@
-Summary: send ICMP echo probes to multiple hosts
-Name: fping
-Version: 3.4
-Release: 1
-License: MIT
-Group: Applications/System
-Source0: http://fping.org/dist/%{name}-%{version}.tar.gz
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
+Name:           @PACKAGE@
+Version:        @VERSION@
+Release:        1%{?dist}
+Summary:        send ICMP echo probes to multiple hosts
+
+Group:          Applications/System
+License:        MIT
+URL:            @PACKAGE_URL@
+Source0:        http://fping.org/dist/%{name}-%{version}.tar.gz
+BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-buildroot
+
+BuildRequires:  gcc
+BuildRequires:  libtool
 
 %description
 fping is a program to send ICMP echo probes to network hosts, similar to ping,
@@ -14,34 +19,28 @@ history: Roland Schemers did publish a first version of it in 1992 and it has
 established itself since then as a standard tool for network diagnostics and
 statistics.
 
+
 %prep
 %setup -q
 
-%build
 
+%build
 if [ ! -f ./configure ] ; then
-    ./autogen.sh
+	./autogen.sh
 fi
 
-# fping
-%configure --enable-ipv4
-make
+%configure --enable-ipv4 --enable-ipv6
+make %{?_smp_mflags}
 
-# fping6
-%configure --enable-ipv6
-make
-%{__mv} -f src/fping src/fping6
 
 %install
 rm -rf $RPM_BUILD_ROOT
 make DESTDIR=$RPM_BUILD_ROOT install
 
-# fping6
-%{__install} -Dp -m4755 src/fping6 %{buildroot}%{_sbindir}/fping6
-%{__ln_s} -f fping.8 %{buildroot}%{_mandir}/man8/fping6.8
 
 %clean
 rm -rf $RPM_BUILD_ROOT
+
 
 %files
 %defattr(-,root,root,-)
@@ -51,11 +50,13 @@ rm -rf $RPM_BUILD_ROOT
 /usr/share/man/man8/fping.8.gz
 /usr/share/man/man8/fping6.8.gz
 
+
 %post
 if [ -x /usr/sbin/setcap ]; then
-    /bin/chmod 0755 /usr/sbin/fping*
-    /usr/sbin/setcap cap_net_raw+ep /usr/sbin/fping*
+	/bin/chmod 0755 /usr/sbin/fping*
+	/usr/sbin/setcap cap_net_raw+ep /usr/sbin/fping*
 fi
+
 
 %changelog
 * Mon Dec 24 2012 Marcus Vinicius Ferreira <ferreira.mv@gmail.com>
@@ -70,4 +71,3 @@ fi
 - Initial build
 
 # vim:ft=spec:
-

@@ -11,6 +11,7 @@ rm -f config.log
 rm -f config.status
 rm -f config.sub
 rm -f configure
+rm -f contrib/fping.spec
 rm -f depcomp
 rm -f install-sh
 rm -f missing
