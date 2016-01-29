@@ -35,4 +35,4 @@ fping6_SOURCES       = $(CORE_SRC) src/socket6.c
 endif
 
 man/%.8: man/@PACKAGE@.pod
-	pod2man -c "" -s 8 $< $@
+	pod2man -c "" -s 8 -n $* -r "@PACKAGE_STRING@" $< $@
