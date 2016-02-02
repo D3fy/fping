@@ -1,16 +1,20 @@
 #!/usr/bin/perl -w
 
-use Test::Command tests => 9;
+use strict;
+use warnings;
+
+use Test::More;
+use t::common;
 
 my $I_HELP = "   -I if      bind to a particular interface\n";
 $I_HELP = '' if $^O eq 'darwin';
 
-# fping -h
-my $cmd1 = Test::Command->new(cmd => "fping -h");
-$cmd1->exit_is_num(0);
-$cmd1->stdout_is_eq(<<END);
+subtest "fping -h" => sub {
+	my $cmd = Test::Command->new(cmd => "$FPING -h");
+	$cmd->exit_is_num(0);
+	$cmd->stdout_is_eq(<<END);
 
-Usage: fping [options] [targets...]
+Usage: $FPING [options] [targets...]
    -a         show targets that are alive
    -A         show targets by address
    -b n       amount of ping data to send, in bytes (default 56)
@@ -22,7 +26,7 @@ Usage: fping [options] [targets...]
    -f file    read list of targets from a file ( - means stdin) (only if no -g specified)
    -g         generate target list (only if no -f specified)
                 (specify the start and end IP in the target list, or supply a IP netmask)
-                (ex. fping -g 192.168.1.0 192.168.1.255 or fping -g 192.168.1.0/24)
+                (ex. $FPING -g 192.168.1.0 192.168.1.255 or $FPING -g 192.168.1.0/24)
    -H n       Set the IP TTL value (Time To Live hops)
    -i n       interval between sending ping packets (in millisec) (default 25)
 ${I_HELP}   -l         loop sending pings forever
@@ -44,22 +48,23 @@ ${I_HELP}   -l         loop sending pings forever
    targets    list of targets to check (if no -f specified)
 
 END
-$cmd1->stderr_is_eq("");
+	$cmd->stderr_is_eq("");
+};
+subtest "fping -v" => sub {
+	my $cmd = Test::Command->new(cmd => "$FPING -v");
+	$cmd->exit_is_num(0);
+	$cmd->stdout_like(qr{$FPING: Version \S+\n$FPING: comments to david\@schweikert\.ch\n});
+	$cmd->stderr_is_eq("");
+};
+subtest "fping with unknown option" => sub {
+	my $cmd = Test::Command->new(cmd => "$FPING -Z");
+	$cmd->exit_is_num(1);
+	$cmd->stdout_is_eq("");
+	if ($^O eq 'darwin') {
+		$cmd->stderr_is_eq("$FPING: illegal option -- Z\nsee 'fping -h' for usage information\n");
+	} else {
+		$cmd->stderr_is_eq("$FPING: invalid option -- 'Z'\nsee 'fping -h' for usage information\n");
+	}
+};
 
-# fping -v
-my $cmd2 = Test::Command->new(cmd => "fping -v");
-$cmd2->exit_is_num(0);
-$cmd2->stdout_like(qr{fping: Version \S+
-fping: comments to david\@schweikert\.ch\n});
-$cmd2->stderr_is_eq("");
-
-# fping with unknown option
-my $cmd3 = Test::Command->new(cmd => "fping -Z");
-$cmd3->exit_is_num(1);
-$cmd3->stdout_is_eq("");
-if($^O eq 'darwin') {
-    $cmd3->stderr_is_eq("fping: illegal option -- Z\nsee 'fping -h' for usage information\n");
-}
-else {
-    $cmd3->stderr_is_eq("fping: invalid option -- 'Z'\nsee 'fping -h' for usage information\n");
-}
+done_testing;

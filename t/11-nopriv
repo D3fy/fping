@@ -1,0 +1,33 @@
+#!/usr/bin/perl -w
+
+use strict;
+use warnings;
+
+use Test::More;
+use t::common;
+
+if ($^O eq 'darwin') {
+	plan skip_all => 'Test irrelevant on MacOS';
+	exit 0;
+}
+
+# drop privs 
+system("cp $FPING  /tmp/fping.copy;  chmod +x /tmp/fping.copy");
+system("cp $FPING6 /tmp/fping6.copy; chmod +x /tmp/fping6.copy");
+
+subtest "fping" => sub {
+	my $cmd = Test::Command->new(cmd => "/tmp/fping.copy 127.0.0.1");
+	$cmd->exit_is_num(4);
+	$cmd->stdout_is_eq("");
+	$cmd->stderr_like(qr{\(null\): can't create socket \(must run as root\?\) : .*\n});
+};
+subtest "fping6" => sub {
+	my $cmd = Test::Command->new(cmd => "/tmp/fping6.copy ::1");
+	$cmd->exit_is_num(4);
+	$cmd->stdout_is_eq("");
+	$cmd->stderr_like(qr{\(null\): can't create raw socket \(must run as root\?\) : .*\n});
+};
+
+done_testing;
+
+# vi:syntax=perl

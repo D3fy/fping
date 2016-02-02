@@ -1,0 +1,27 @@
+#!/usr/bin/perl -w
+
+use strict;
+use warnings;
+
+use Test::More;
+use t::common;
+
+#  -u         show targets that are unreachable
+#  -v         show version
+
+subtest "fping -u" => sub {
+	my $cmd = Test::Command->new(cmd => "$FPING -r0 -u 8.8.0.0 127.0.0.1");
+	$cmd->exit_is_num(1);
+	$cmd->stdout_is_eq("8.8.0.0\n");
+	$cmd->stderr_is_eq("");
+};
+subtest "fping -v" => sub {
+	my $cmd = Test::Command->new(cmd => "$FPING -v");
+	$cmd->exit_is_num(0);
+	$cmd->stdout_like(qr{$FPING: Version 3\.\d+(-rc\d+)?\n$FPING: comments to david\@schweikert\.ch\n});
+	$cmd->stderr_is_eq("");
+};
+
+done_testing;
+
+# vi:syntax=perl
