@@ -1666,7 +1666,7 @@ void add_name(char *name) /* {{{ */
 	char              addrbuf[256];
 
 	/* getaddrinfo */
-	bzero(&hints, sizeof(struct addrinfo));
+	memset(&hints, 0, sizeof(struct addrinfo));
 	hints.ai_flags = 0;
 	hints.ai_socktype = SOCK_RAW;
 #ifndef IPV6
