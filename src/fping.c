@@ -188,36 +188,37 @@ char *icmp_unreach_str[16] = {
 typedef struct host_entry {
 	/* Each host can have an event attached: either the next time that a ping needs
 	 * to be sent, or the timeout, if the last ping was sent */
-	struct host_entry *ev_prev;           /* double linked list for the event-queue */
-	struct host_entry *ev_next;           /* double linked list for the event-queue */
-	struct timeval     ev_time;            /* time, after which this event should happen */
-	int                ev_type;            /* event type */
+	struct host_entry *ev_prev;                /* double linked list for the event-queue */
+	struct host_entry *ev_next;                /* double linked list for the event-queue */
+	struct timeval     ev_time;                /* time, after which this event should happen */
+	int                ev_type;                /* event type */
 
-	int                i;                  /* index into array */
-	char              *name;              /* name as given by user */
-	char              *host;              /* text description of host */
-	char              *pad;               /* pad to align print names */
+	int                i;                      /* index into array */
+	char              *name;                   /* name as given by user */
+	char              *host;                   /* text description of host */
+	char              *pad;                    /* pad to align print names */
 	struct             sockaddr_storage saddr; /* internet address */
 	socklen_t          saddr_len;
-	int                timeout;            /* time to wait for response */
-	unsigned char      running;            /* unset when through sending */
-	unsigned char      waiting;            /* waiting for response */
-	struct timeval     last_send_time;     /* time of last packet sent */
-	int                num_sent;           /* number of ping packets sent */
-	int                num_recv;           /* number of pings received (duplicates ignored) */
-	int                num_recv_total;     /* number of pings received, including duplicates */
-	int                max_reply;          /* longest response time */
-	int                min_reply;          /* shortest response time */
-	int                total_time;         /* sum of response times */
+	int                timeout;                /* time to wait for response */
+	unsigned char      running;                /* unset when through sending */
+	unsigned char      waiting;                /* waiting for response */
+	struct timeval     last_send_time;         /* time of last packet sent */
+	int                num_sent;               /* number of ping packets sent */
+	int                num_recv;               /* number of pings received (duplicates ignored) */
+	int                num_recv_total;         /* number of pings received, including duplicates */
+	int                max_reply;              /* longest response time */
+	int                min_reply;              /* shortest response time */
+	int                total_time;             /* sum of response times */
+
 	/* _i -> splits (reset on every report interval) */
-	int                num_sent_i;         /* number of ping packets sent */
-	int                num_recv_i;         /* number of pings received */
-	int                max_reply_i;        /* longest response time */
-	int                min_reply_i;        /* shortest response time */
-	int                total_time_i;       /* sum of response times */
-	int               *resp_times;        /* individual response times */
+	int                num_sent_i;             /* number of ping packets sent */
+	int                num_recv_i;             /* number of pings received */
+	int                max_reply_i;            /* longest response time */
+	int                min_reply_i;            /* shortest response time */
+	int                total_time_i;           /* sum of response times */
+	int               *resp_times;             /* individual response times */
 #if defined( DEBUG ) || defined( _DEBUG )
-	int               *sent_times;        /* per-sent-ping timestamp */
+	int               *sent_times;             /* per-sent-ping timestamp */
 #endif /* DEBUG || _DEBUG */
 } HOST_ENTRY;
 
@@ -240,13 +241,13 @@ unsigned int   retry            = DEFAULT_RETRY;
 unsigned int   timeout          = DEFAULT_TIMEOUT * 100;
 unsigned int   interval         = DEFAULT_INTERVAL * 100;
 unsigned int   perhost_interval = DEFAULT_PERHOST_INTERVAL * 100;
-         float backoff          = DEFAULT_BACKOFF_FACTOR;
+		 float backoff          = DEFAULT_BACKOFF_FACTOR;
 unsigned int   ping_data_size   = DEFAULT_PING_DATA_SIZE;
 unsigned int   count            = 1;
 unsigned int   trials;
 unsigned int   report_interval  = 0;
 unsigned int   ttl              = 0;
-         int   src_addr_present = 0;
+		 int   src_addr_present = 0;
 
 #ifndef IPV6
 struct in_addr src_addr;
@@ -263,12 +264,12 @@ int max_hostname_len = 0;
 int num_jobs         = 0;                   /* number of hosts still to do */
 int num_hosts;                      /* total number of hosts */
 int num_alive       = 0,                  /* total number alive */
-    num_unreachable = 0,            /* total number unreachable */
-    num_noaddress   = 0;              /* total number of addresses not found */
+	num_unreachable = 0,            /* total number unreachable */
+	num_noaddress   = 0;              /* total number of addresses not found */
 int num_timeout = 0,                /* number of times select timed out */
-    num_pingsent = 0,               /* total pings sent */
-    num_pingreceived = 0,           /* total pings received */
-    num_othericmprcvd = 0;          /* total non-echo-reply ICMP received */
+	num_pingsent = 0,               /* total pings sent */
+	num_pingreceived = 0,           /* total pings received */
+	num_othericmprcvd = 0;          /* total non-echo-reply ICMP received */
 
 struct timeval current_time;        /* current time (pseudo) */
 struct timeval start_time; 
@@ -294,33 +295,35 @@ char *filename = NULL;              /* file containing hosts to ping */
 
 /*** forward declarations ***/
 
-void add_name( char *name );
-void add_addr( char *name, char *host, struct sockaddr *ipaddr, socklen_t ipaddr_len);
+void  add_name( char *name );
+void  add_addr( char *name, char *host, struct sockaddr *ipaddr, socklen_t ipaddr_len);
 char *na_cat( char *name, struct in_addr ipaddr );
-void crash_and_burn( char *message );
-void errno_crash_and_burn( char *message );
+void  crash_and_burn( char *message );
+void  errno_crash_and_burn( char *message );
 char *get_host_by_address( struct in_addr in );
-int recvfrom_wto( int s, char *buf, int len, struct sockaddr *saddr, socklen_t *saddr_len, long timo );
-void remove_job( HOST_ENTRY *h );
-int send_ping( int s, HOST_ENTRY *h );
-long timeval_diff( struct timeval *a, struct timeval *b );
-void timeval_add(struct timeval *a, long t_10u);
-void usage( int );
-int wait_for_reply( long );
-void print_per_system_stats( void );
-void print_per_system_splits( void );
-void print_global_stats( void );
-void main_loop();
-void finish();
-int handle_random_icmp( FPING_ICMPHDR *p, struct sockaddr *addr, socklen_t addr_len);
+int   recvfrom_wto( int s, char *buf, int len, struct sockaddr *saddr, socklen_t *saddr_len, long timo );
+void  remove_job( HOST_ENTRY *h );
+int   send_ping( int s, HOST_ENTRY *h );
+long  timeval_diff( struct timeval *a, struct timeval *b );
+void  timeval_add(struct timeval *a, long t_10u);
+void  usage( int );
+int   wait_for_reply( long );
+void  print_per_system_stats( void );
+void  print_per_system_splits( void );
+void  print_global_stats( void );
+void  main_loop();
+void  finish();
+int   handle_random_icmp( FPING_ICMPHDR *p, struct sockaddr *addr, socklen_t addr_len);
 char *sprint_tm( int t );
-void ev_enqueue(HOST_ENTRY  *h);
+void  ev_enqueue(HOST_ENTRY  *h);
+
 HOST_ENTRY *ev_dequeue();
-void ev_remove(HOST_ENTRY *h);
-void add_cidr(char *);
-void add_range(char *, char *);
-void print_warning(char *fmt, ...);
-int addr_cmp(struct sockaddr *a, struct sockaddr *b);
+
+void  ev_remove(HOST_ENTRY *h);
+void  add_cidr(char *);
+void  add_range(char *, char *);
+void  print_warning(char *fmt, ...);
+int   addr_cmp(struct sockaddr *a, struct sockaddr *b);
 
 
 /************************************************************
@@ -354,7 +357,7 @@ int main(int argc, char **argv) /* {{{ */
 	backoff_flag = 1;
 	opterr       = 1;
 
-	/* get command line options */
+	/* get command line options {{{ */
 	while ((c = getopt(argc, argv, "gedhlmnqusaAvDRz:t:H:i:p:f:r:c:b:C:Q:B:S:I:T:O:" )) != EOF) {
 		switch (c) {
 		case 't':
@@ -439,12 +442,12 @@ int main(int argc, char **argv) /* {{{ */
 			break;
 		case 'H':
 			if (!(ttl = (u_int) atoi(optarg)))
-			    usage(1);
+				usage(1);
 			break;
 #if defined( DEBUG ) || defined( _DEBUG )
 		case 'z':
 			if (!(debugging = (unsigned int) atoi(optarg)))
-			    usage(1);
+				usage(1);
 			break;
 #endif /* DEBUG || _DEBUG */
 		case 'v':
@@ -496,25 +499,22 @@ int main(int argc, char **argv) /* {{{ */
 			break;
 		}
 	}
+	/* }}} */
 
-    /* validate various option settings */
-    if (ttl > 255) {
-        fprintf(stderr, "ttl %u out of range\n", ttl);
-        exit(1);
-    }
-    if (unreachable_flag && alive_flag) {
-        fprintf( stderr, "%s: specify only one of a, u\n", argv[0] );
-        exit(1);
-
-    }/* IF */
-
-    if( count_flag && loop_flag ) {
-        fprintf( stderr, "%s: specify only one of c, l\n", argv[0] );
-        exit(1);
-
-    }/* IF */
-
-    if ((interval < MIN_INTERVAL * 100
+	/* validate various option settings {{{ */
+	if (ttl > 255) {
+		fprintf(stderr, "ttl %u out of range\n", ttl);
+		exit(1);
+	}
+	if (unreachable_flag && alive_flag) {
+		fprintf( stderr, "%s: specify only one of a, u\n", argv[0] );
+		exit(1);
+	}
+	if ( count_flag && loop_flag ) {
+		fprintf( stderr, "%s: specify only one of c, l\n", argv[0] );
+		exit(1);
+	}
+	if ((interval < MIN_INTERVAL * 100
 			|| perhost_interval < MIN_PERHOST_INTERVAL * 100
 			|| retry > MAX_RETRY
 			|| timeout < MIN_TIMEOUT * 100)
@@ -524,140 +524,125 @@ int main(int argc, char **argv) /* {{{ */
 			prog, MIN_INTERVAL, MIN_PERHOST_INTERVAL, MAX_RETRY, MIN_TIMEOUT);
 		exit(1);
 	}
-
 	if (ping_data_size > MAX_PING_DATA) {
 		fprintf( stderr, "%s: data size %u not valid, must be between %u and %u\n",
 			prog, ping_data_size, (unsigned int) MIN_PING_DATA, (unsigned int) MAX_PING_DATA );
 		exit(1);
 	}
+	if ((backoff > MAX_BACKOFF_FACTOR) || (backoff < MIN_BACKOFF_FACTOR)) {
+		fprintf( stderr, "%s: backoff factor %.1f not valid, must be between %.1f and %.1f\n",
+			prog, backoff, MIN_BACKOFF_FACTOR, MAX_BACKOFF_FACTOR );
+		exit(1);
+	}
+	if (count > MAX_COUNT) {
+		fprintf( stderr, "%s: count %u not valid, must be less than %u\n",
+			prog, count, MAX_COUNT );
+		exit(1);
+	}
+	if (alive_flag || unreachable_flag)
+		verbose_flag = 0;
+	}
+	if (count_flag) {
+		if (verbose_flag)
+			per_recv_flag = 1;
+		alive_flag = unreachable_flag = verbose_flag = 0;
+	}
+	if (loop_flag) {
+		if (!report_interval)
+			per_recv_flag = 1;
+		alive_flag = unreachable_flag = verbose_flag = 0;
+	}
 
-    if( ( backoff > MAX_BACKOFF_FACTOR ) || ( backoff < MIN_BACKOFF_FACTOR ) ) {
-        fprintf( stderr, "%s: backoff factor %.1f not valid, must be between %.1f and %.1f\n",
-            prog, backoff, MIN_BACKOFF_FACTOR, MAX_BACKOFF_FACTOR );
-        exit(1);
-    
-    }/* IF */
-
-    if( count > MAX_COUNT )
-    {
-        fprintf( stderr, "%s: count %u not valid, must be less than %u\n",
-            prog, count, MAX_COUNT );
-        exit(1);
-    
-    }/* IF */
-    
-    if( alive_flag || unreachable_flag )
-        verbose_flag = 0;
-    
-    if( count_flag )
-    {
-        if( verbose_flag )
-            per_recv_flag = 1;
-    
-        alive_flag = unreachable_flag = verbose_flag = 0;
-
-    }/* IF */
-    
-    if( loop_flag )
-    {
-        if( !report_interval )
-            per_recv_flag = 1;
-        
-        alive_flag = unreachable_flag = verbose_flag = 0;
-
-    }/* IF */
-    
-
-    trials = ( count > retry + 1 ) ? count : retry + 1;
+	trials = ( count > retry + 1 ) ? count : retry + 1;
 
 #if defined( DEBUG ) || defined( _DEBUG )
-    if( debugging & DBG_TRACE )
-        trace_flag = 1;
-    
-    if( ( debugging & DBG_SENT_TIMES ) && !loop_flag )
-        sent_times_flag = 1;
+	if ( debugging & DBG_TRACE )
+		trace_flag = 1;
+	
+	if ( ( debugging & DBG_SENT_TIMES ) && !loop_flag )
+		sent_times_flag = 1;
 
-    if( debugging & DBG_RANDOM_LOSE_FEW )
-    {
-        randomly_lose_flag = 1;
-        lose_factor = 1;     /* ie, 1/4 */
-    
-    }/* IF */
-    
-    if( debugging & DBG_RANDOM_LOSE_MANY )
-    {
-        randomly_lose_flag = 1;
-        lose_factor = 5;     /* ie, 3/4 */
-    
-    }/* IF */
+	if ( debugging & DBG_RANDOM_LOSE_FEW )
+	{
+		randomly_lose_flag = 1;
+		lose_factor = 1;     /* ie, 1/4 */
+	
+	}
+	
+	if ( debugging & DBG_RANDOM_LOSE_MANY )
+	{
+		randomly_lose_flag = 1;
+		lose_factor = 5;     /* ie, 3/4 */
+	
+	}
   
-    if( debugging & DBG_PRINT_PER_SYSTEM )
-        print_per_system_flag = 1;
+	if ( debugging & DBG_PRINT_PER_SYSTEM )
+		print_per_system_flag = 1;
 
-    if( ( debugging & DBG_REPORT_ALL_RTTS ) && !loop_flag )
-        report_all_rtts_flag = 1;
+	if ( ( debugging & DBG_REPORT_ALL_RTTS ) && !loop_flag )
+		report_all_rtts_flag = 1;
 
-    if( trace_flag )
-    {
-        fprintf( stderr, "%s:\n  count: %u, retry: %u, interval: %u\n",
-            prog, count, retry, interval / 10 );
-        fprintf( stderr, "  perhost_interval: %u, timeout: %u\n",
-            perhost_interval / 10, timeout / 10 );
-        fprintf( stderr, "  ping_data_size = %u, trials = %u\n",
-            ping_data_size, trials );
-        
-        if( verbose_flag ) fprintf( stderr, "  verbose_flag set\n" );
-        if( multif_flag ) fprintf( stderr, "  multif_flag set\n" );
-        if( name_flag ) fprintf( stderr, "  name_flag set\n" );
-        if( addr_flag ) fprintf( stderr, "  addr_flag set\n" );
-        if( stats_flag ) fprintf( stderr, "  stats_flag set\n" );
-        if( unreachable_flag ) fprintf( stderr, "  unreachable_flag set\n" );
-        if( alive_flag ) fprintf( stderr, "  alive_flag set\n" );
-        if( elapsed_flag ) fprintf( stderr, "  elapsed_flag set\n" );
-        if( version_flag ) fprintf( stderr, "  version_flag set\n" );
-        if( count_flag ) fprintf( stderr, "  count_flag set\n" );
-        if( loop_flag ) fprintf( stderr, "  loop_flag set\n" );
-        if( backoff_flag ) fprintf( stderr, "  backoff_flag set\n" );
-        if( per_recv_flag ) fprintf( stderr, "  per_recv_flag set\n" );
-        if( report_all_rtts_flag ) fprintf( stderr, "  report_all_rtts_flag set\n" );
-        if( randomly_lose_flag ) fprintf( stderr, "  randomly_lose_flag set\n" );
-        if( sent_times_flag ) fprintf( stderr, "  sent_times_flag set\n" );
-        if( print_per_system_flag ) fprintf( stderr, "  print_per_system_flag set\n" );
-
-    }/* IF */
+	if ( trace_flag )
+	{
+		fprintf( stderr, "%s:\n  count: %u, retry: %u, interval: %u\n",
+			prog, count, retry, interval / 10 );
+		fprintf( stderr, "  perhost_interval: %u, timeout: %u\n",
+			perhost_interval / 10, timeout / 10 );
+		fprintf( stderr, "  ping_data_size = %u, trials = %u\n",
+			ping_data_size, trials );
+		
+		if ( verbose_flag ) fprintf( stderr, "  verbose_flag set\n" );
+		if ( multif_flag ) fprintf( stderr, "  multif_flag set\n" );
+		if ( name_flag ) fprintf( stderr, "  name_flag set\n" );
+		if ( addr_flag ) fprintf( stderr, "  addr_flag set\n" );
+		if ( stats_flag ) fprintf( stderr, "  stats_flag set\n" );
+		if ( unreachable_flag ) fprintf( stderr, "  unreachable_flag set\n" );
+		if ( alive_flag ) fprintf( stderr, "  alive_flag set\n" );
+		if ( elapsed_flag ) fprintf( stderr, "  elapsed_flag set\n" );
+		if ( version_flag ) fprintf( stderr, "  version_flag set\n" );
+		if ( count_flag ) fprintf( stderr, "  count_flag set\n" );
+		if ( loop_flag ) fprintf( stderr, "  loop_flag set\n" );
+		if ( backoff_flag ) fprintf( stderr, "  backoff_flag set\n" );
+		if ( per_recv_flag ) fprintf( stderr, "  per_recv_flag set\n" );
+		if ( report_all_rtts_flag ) fprintf( stderr, "  report_all_rtts_flag set\n" );
+		if ( randomly_lose_flag ) fprintf( stderr, "  randomly_lose_flag set\n" );
+		if ( sent_times_flag ) fprintf( stderr, "  sent_times_flag set\n" );
+		if ( print_per_system_flag ) fprintf( stderr, "  print_per_system_flag set\n" );
+	}
 #endif /* DEBUG || _DEBUG */
 
-    /* set the TTL, if the -H option was set (otherwise ttl will be = 0) */
-    if(ttl > 0) {
-        if (setsockopt(s, IPPROTO_IP, IP_TTL,  &ttl, sizeof(ttl))) {
-            perror("setting time to live");
-        }
-    }
+	/* set the TTL, if the -H option was set (otherwise ttl will be = 0) */
+	if (ttl > 0) {
+		if (setsockopt(s, IPPROTO_IP, IP_TTL,  &ttl, sizeof(ttl))) {
+			perror("setting time to live");
+		}
+	}
+	/* }}} */
 
-    /* handle host names supplied on command line or in a file */
-    /* if the generate_flag is on, then generate the IP list */
+	/* handle host names supplied on command line or in a file */
+	/* if the generate_flag is on, then generate the IP list */
 
-    argv = &argv[optind];
-    argc -= optind;
+	argv  = &argv[optind];
+	argc -= optind;
 
-    /* cover allowable conditions */
+	/* cover allowable conditions */
 
-    /* file and generate are mutually exclusive */
-    /* file and command line are mutually exclusive */
-    /* generate requires command line parameters beyond the switches */
-    if( ( *argv && filename ) || ( filename && generate_flag ) || ( generate_flag && !*argv ) )
-        usage(1);
+	/* file and generate are mutually exclusive */
+	/* file and command line are mutually exclusive */
+	/* generate requires command line parameters beyond the switches */
+	if ((*argv && filename ) || ( filename && generate_flag ) || (generate_flag && !*argv))
+		usage(1);
 
-    /* if no conditions are specified, then assume input from stdin */
-    if( !*argv && !filename && !generate_flag )
-        filename = "-";
-    
-    if (*argv && !generate_flag) {
+	/* if no conditions are specified, then assume input from stdin */
+	if (!*argv && !filename && !generate_flag)
+		filename = "-";
+
+	if (*argv && !generate_flag) {
 		while (*argv) {
 			add_name(*argv);
 			++argv;
 		}
-	} else if(filename) {
+	} else if (filename) {
 		FILE *ping_file;
 		char line[132];
 		char host[132];
@@ -692,45 +677,41 @@ int main(int argc, char **argv) /* {{{ */
 		usage(1);
 	}
 
-    if( !num_hosts )
-        exit(1);
+	if (!num_hosts)
+		exit(1);
 
-    if(src_addr_present) {
-        socket_set_src_addr(s, src_addr);
-    }
+	if (src_addr_present) {
+		socket_set_src_addr(s, src_addr);
 
-    /* allocate array to hold outstanding ping requests */
+	/* allocate array to hold outstanding ping requests */
 
-    table = ( HOST_ENTRY** )malloc( sizeof( HOST_ENTRY* ) * num_hosts );
-    if( !table )
-        crash_and_burn( "Can't malloc array of hosts" );
+	table = (HOST_ENTRY**) malloc(sizeof(HOST_ENTRY*) * num_hosts);
+	if (!table)
+		crash_and_burn( "Can't malloc array of hosts" );
 
-    cursor = ev_first;
+	cursor = ev_first;
 
-    for( num_jobs = 0; num_jobs < num_hosts; num_jobs++ )
-    {
-        table[num_jobs] = cursor;
-        cursor->i = num_jobs;
-        
-        /* as long as we're here, put this in so names print out nicely */
-        if( count_flag || loop_flag )
-        {
-            n = max_hostname_len - strlen( cursor->host );
-            buf = ( char* ) malloc( n + 1 );
-            if( !buf )
-                crash_and_burn( "can't malloc host pad" );
-            
-            for ( i = 0; i < n; i++ )
-                buf[i] = ' ';
+	for (num_jobs = 0; num_jobs < num_hosts; num_jobs++) {
+		table[num_jobs] = cursor;
+		cursor->i = num_jobs;
 
-            buf[n] = '\0';
-            cursor->pad = buf;
+		/* as long as we're here, put this in so names print out nicely */
+		if (count_flag || loop_flag) {
+			n = max_hostname_len - strlen( cursor->host );
+			buf = ( char* ) malloc( n + 1 );
+			if (!buf)
+				crash_and_burn( "can't malloc host pad" );
 
-        }/* IF */
-        
-        cursor=cursor->ev_next;
+			for (i = 0; i < n; i++)
+				buf[i] = ' ';
 
-    }/* FOR */
+			buf[n] = '\0';
+			cursor->pad = buf;
+		}
+
+		cursor=cursor->ev_next;
+
+	}
 
 	init_ping_buffer(ping_data_size);
 
@@ -761,240 +742,240 @@ int main(int argc, char **argv) /* {{{ */
 
 void add_cidr(char *addr) /* {{{ */
 {
-    char *addr_end;
-    char *mask_str; 
-    unsigned long mask;
-    unsigned long bitmask;
-    int ret;
-    struct addrinfo addr_hints;
-    struct addrinfo *addr_res;
-    unsigned long net_addr;
-    unsigned long net_last;
+	char *addr_end;
+	char *mask_str; 
+	unsigned long mask;
+	unsigned long bitmask;
+	int ret;
+	struct addrinfo addr_hints;
+	struct addrinfo *addr_res;
+	unsigned long net_addr;
+	unsigned long net_last;
 
-    /* Split address from mask */
-    addr_end = strchr(addr, '/');
-    if(addr_end == NULL) {
-        usage(1);
-    }
-    *addr_end = '\0';
-    mask_str = addr_end + 1;
-    mask = atoi(mask_str);
+	/* Split address from mask */
+	addr_end = strchr(addr, '/');
+	if (addr_end == NULL) {
+		usage(1);
+	}
+	*addr_end = '\0';
+	mask_str = addr_end + 1;
+	mask = atoi(mask_str);
 
-    /* parse address (IPv4 only) */
-    memset(&addr_hints, 0, sizeof(struct addrinfo));
-    addr_hints.ai_family = AF_UNSPEC;
-    addr_hints.ai_flags = AI_NUMERICHOST;
-    ret = getaddrinfo(addr, NULL, &addr_hints, &addr_res);
-    if(ret) {
-        fprintf(stderr, "Error: can't parse address %s: %s\n", addr, gai_strerror(ret));
-        exit(1);
-    }
-    if(addr_res->ai_family != AF_INET) {
-        fprintf(stderr, "Error: -g works only with IPv4 addresses\n");
-        exit(1);
-    }
-    net_addr = ntohl(((struct sockaddr_in *) addr_res->ai_addr)->sin_addr.s_addr);
+	/* parse address (IPv4 only) */
+	memset(&addr_hints, 0, sizeof(struct addrinfo));
+	addr_hints.ai_family = AF_UNSPEC;
+	addr_hints.ai_flags = AI_NUMERICHOST;
+	ret = getaddrinfo(addr, NULL, &addr_hints, &addr_res);
+	if (ret) {
+		fprintf(stderr, "Error: can't parse address %s: %s\n", addr, gai_strerror(ret));
+		exit(1);
+	}
+	if (addr_res->ai_family != AF_INET) {
+		fprintf(stderr, "Error: -g works only with IPv4 addresses\n");
+		exit(1);
+	}
+	net_addr = ntohl(((struct sockaddr_in *) addr_res->ai_addr)->sin_addr.s_addr);
 
-    /* check mask */
-    if(mask < 1 || mask > 30) {
-        fprintf(stderr, "Error: netmask must be between 1 and 30 (is: %s)\n", mask_str);
-        exit(1);
-    }
+	/* check mask */
+	if (mask < 1 || mask > 30) {
+		fprintf(stderr, "Error: netmask must be between 1 and 30 (is: %s)\n", mask_str);
+		exit(1);
+	}
 
-    /* convert mask integer from 1 to 32 to a bitmask */
-    bitmask = ((unsigned long) 0xFFFFFFFF) << (32-mask);
+	/* convert mask integer from 1 to 32 to a bitmask */
+	bitmask = ((unsigned long) 0xFFFFFFFF) << (32-mask);
 
-    /* calculate network range */
-    net_addr &= bitmask;
-    net_last = net_addr + ((unsigned long) 0x1 << (32-mask)) - 1;
+	/* calculate network range */
+	net_addr &= bitmask;
+	net_last = net_addr + ((unsigned long) 0x1 << (32-mask)) - 1;
 
-    /* add all hosts in that network (excluding network and broadcast address) */
-    while(++net_addr < net_last) {
-        struct in_addr in_addr_tmp;
-        char buffer[20];
-        in_addr_tmp.s_addr = htonl(net_addr);
-        inet_ntop(AF_INET, &in_addr_tmp, buffer, sizeof(buffer));
-        add_name(buffer);
-    }
+	/* add all hosts in that network (excluding network and broadcast address) */
+	while(++net_addr < net_last) {
+		struct in_addr in_addr_tmp;
+		char buffer[20];
+		in_addr_tmp.s_addr = htonl(net_addr);
+		inet_ntop(AF_INET, &in_addr_tmp, buffer, sizeof(buffer));
+		add_name(buffer);
+	}
 
-    freeaddrinfo(addr_res);
+	freeaddrinfo(addr_res);
 }
 /* }}} */
 
 void add_range(char *start, char *end) /* {{{ */
 {
-    struct addrinfo addr_hints;
-    struct addrinfo *addr_res;
-    unsigned long start_long;
-    unsigned long end_long;
-    int ret;
+	struct addrinfo addr_hints;
+	struct addrinfo *addr_res;
+	unsigned long start_long;
+	unsigned long end_long;
+	int ret;
 
-    /* parse start address (IPv4 only) */
-    memset(&addr_hints, 0, sizeof(struct addrinfo));
-    addr_hints.ai_family = AF_UNSPEC;
-    addr_hints.ai_flags = AI_NUMERICHOST;
-    ret = getaddrinfo(start, NULL, &addr_hints, &addr_res);
-    if(ret) {
-        fprintf(stderr, "Error: can't parse address %s: %s\n", start, gai_strerror(ret));
-        exit(1);
-    }
-    if(addr_res->ai_family != AF_INET) {
-        fprintf(stderr, "Error: -g works only with IPv4 addresses\n");
-        exit(1);
-    }
-    start_long = ntohl(((struct sockaddr_in *) addr_res->ai_addr)->sin_addr.s_addr);
+	/* parse start address (IPv4 only) */
+	memset(&addr_hints, 0, sizeof(struct addrinfo));
+	addr_hints.ai_family = AF_UNSPEC;
+	addr_hints.ai_flags = AI_NUMERICHOST;
+	ret = getaddrinfo(start, NULL, &addr_hints, &addr_res);
+	if (ret) {
+		fprintf(stderr, "Error: can't parse address %s: %s\n", start, gai_strerror(ret));
+		exit(1);
+	}
+	if (addr_res->ai_family != AF_INET) {
+		fprintf(stderr, "Error: -g works only with IPv4 addresses\n");
+		exit(1);
+	}
+	start_long = ntohl(((struct sockaddr_in *) addr_res->ai_addr)->sin_addr.s_addr);
 
-    /* parse end address (IPv4 only) */
-    memset(&addr_hints, 0, sizeof(struct addrinfo));
-    addr_hints.ai_family = AF_UNSPEC;
-    addr_hints.ai_flags = AI_NUMERICHOST;
-    ret = getaddrinfo(end, NULL, &addr_hints, &addr_res);
-    if(ret) {
-        fprintf(stderr, "Error: can't parse address %s: %s\n", end, gai_strerror(ret));
-        exit(1);
-    }
-    if(addr_res->ai_family != AF_INET) {
-        fprintf(stderr, "Error: -g works only with IPv4 addresses\n");
-        exit(1);
-    }
-    end_long = ntohl(((struct sockaddr_in *) addr_res->ai_addr)->sin_addr.s_addr);
+	/* parse end address (IPv4 only) */
+	memset(&addr_hints, 0, sizeof(struct addrinfo));
+	addr_hints.ai_family = AF_UNSPEC;
+	addr_hints.ai_flags = AI_NUMERICHOST;
+	ret = getaddrinfo(end, NULL, &addr_hints, &addr_res);
+	if (ret) {
+		fprintf(stderr, "Error: can't parse address %s: %s\n", end, gai_strerror(ret));
+		exit(1);
+	}
+	if (addr_res->ai_family != AF_INET) {
+		fprintf(stderr, "Error: -g works only with IPv4 addresses\n");
+		exit(1);
+	}
+	end_long = ntohl(((struct sockaddr_in *) addr_res->ai_addr)->sin_addr.s_addr);
 
-    /* generate */
-    while(start_long <= end_long) {
-        struct in_addr in_addr_tmp;
-        char buffer[20];
-        in_addr_tmp.s_addr = htonl(start_long);
-        inet_ntop(AF_INET, &in_addr_tmp, buffer, sizeof(buffer));
-        add_name(buffer);
-        start_long++;
-    }
+	/* generate */
+	while(start_long <= end_long) {
+		struct in_addr in_addr_tmp;
+		char buffer[20];
+		in_addr_tmp.s_addr = htonl(start_long);
+		inet_ntop(AF_INET, &in_addr_tmp, buffer, sizeof(buffer));
+		add_name(buffer);
+		start_long++;
+	}
 }
 /* }}} */
 
 void main_loop(void) /* {{{ */
 {
-    long lt;
-    long wait_time;
-    HOST_ENTRY *h;
+	long lt;
+	long wait_time;
+	HOST_ENTRY *h;
 
-    while (ev_first) {
-        /* Any event that can be processed now ? */
-        if(ev_first->ev_time.tv_sec < current_time.tv_sec ||
-            (ev_first->ev_time.tv_sec == current_time.tv_sec &&
-             ev_first->ev_time.tv_usec < current_time.tv_usec))
-        {
-            /* Event type: ping */
-            if(ev_first->ev_type == EV_TYPE_PING) {
-                /* Make sure that we don't ping more than once every "interval" */
-                lt = timeval_diff( &current_time, &last_send_time );
-                if(lt < interval) goto wait_for_reply;
+	while (ev_first) {
+		/* Any event that can be processed now ? */
+		if (ev_first->ev_time.tv_sec < current_time.tv_sec ||
+			(ev_first->ev_time.tv_sec == current_time.tv_sec &&
+			 ev_first->ev_time.tv_usec < current_time.tv_usec))
+		{
+			/* Event type: ping */
+			if (ev_first->ev_type == EV_TYPE_PING) {
+				/* Make sure that we don't ping more than once every "interval" */
+				lt = timeval_diff( &current_time, &last_send_time );
+				if (lt < interval) goto wait_for_reply;
 
-                /* Dequeue the event */
-                h = ev_dequeue();
+				/* Dequeue the event */
+				h = ev_dequeue();
 
-                /* Send the ping */
+				/* Send the ping */
 		/*printf("Sending ping after %d ms\n", lt/100); */
-                send_ping(s, h);
+				send_ping(s, h);
 
-                /* Check what needs to be done next */
-                if(!loop_flag && !count_flag) {
-                    /* Normal mode: schedule retry */
-                    if(h->waiting < retry + 1) {
-                        h->ev_type = EV_TYPE_PING;
-                        h->ev_time.tv_sec = last_send_time.tv_sec;
-                        h->ev_time.tv_usec = last_send_time.tv_usec;
-                        timeval_add(&h->ev_time, h->timeout);
-                        ev_enqueue(h);
+				/* Check what needs to be done next */
+				if (!loop_flag && !count_flag) {
+					/* Normal mode: schedule retry */
+					if (h->waiting < retry + 1) {
+					    h->ev_type = EV_TYPE_PING;
+					    h->ev_time.tv_sec = last_send_time.tv_sec;
+					    h->ev_time.tv_usec = last_send_time.tv_usec;
+					    timeval_add(&h->ev_time, h->timeout);
+					    ev_enqueue(h);
 
-                        if(backoff_flag) {
-                            h->timeout *= backoff;
-                        }
-                    }
-                    /* Normal mode: schedule timeout for last retry */
-                    else {
-                        h->ev_type = EV_TYPE_TIMEOUT;
-                        h->ev_time.tv_sec = last_send_time.tv_sec;
-                        h->ev_time.tv_usec = last_send_time.tv_usec;
-                        timeval_add(&h->ev_time, h->timeout);
-                        ev_enqueue(h);
-                    }
-                }
-                /* Loop and count mode: schedule next ping */
-                else if(loop_flag || (count_flag && h->num_sent < count))
-                {
-                    h->ev_type = EV_TYPE_PING;
-                    h->ev_time.tv_sec = last_send_time.tv_sec;
-                    h->ev_time.tv_usec = last_send_time.tv_usec;
-                    timeval_add(&h->ev_time, perhost_interval);
-                    ev_enqueue(h);
-                }
-                /* Count mode: schedule timeout after last ping */
-                else if(count_flag && h->num_sent >= count) {
-                    h->ev_type = EV_TYPE_TIMEOUT;
-                    h->ev_time.tv_sec = last_send_time.tv_sec;
-                    h->ev_time.tv_usec = last_send_time.tv_usec;
-                    timeval_add(&h->ev_time, h->timeout);
-                    ev_enqueue(h);
-                }
-            }
-            /* Event type: timeout */
-            else if(ev_first->ev_type == EV_TYPE_TIMEOUT) {
-                num_timeout++;
-                remove_job(ev_first);
-            }
-        }
+					    if (backoff_flag) {
+					        h->timeout *= backoff;
+					    }
+					}
+					/* Normal mode: schedule timeout for last retry */
+					else {
+					    h->ev_type = EV_TYPE_TIMEOUT;
+					    h->ev_time.tv_sec = last_send_time.tv_sec;
+					    h->ev_time.tv_usec = last_send_time.tv_usec;
+					    timeval_add(&h->ev_time, h->timeout);
+					    ev_enqueue(h);
+					}
+				}
+				/* Loop and count mode: schedule next ping */
+				else if (loop_flag || (count_flag && h->num_sent < count))
+				{
+					h->ev_type = EV_TYPE_PING;
+					h->ev_time.tv_sec = last_send_time.tv_sec;
+					h->ev_time.tv_usec = last_send_time.tv_usec;
+					timeval_add(&h->ev_time, perhost_interval);
+					ev_enqueue(h);
+				}
+				/* Count mode: schedule timeout after last ping */
+				else if (count_flag && h->num_sent >= count) {
+					h->ev_type = EV_TYPE_TIMEOUT;
+					h->ev_time.tv_sec = last_send_time.tv_sec;
+					h->ev_time.tv_usec = last_send_time.tv_usec;
+					timeval_add(&h->ev_time, h->timeout);
+					ev_enqueue(h);
+				}
+			}
+			/* Event type: timeout */
+			else if (ev_first->ev_type == EV_TYPE_TIMEOUT) {
+				num_timeout++;
+				remove_job(ev_first);
+			}
+		}
 
-        wait_for_reply:
+		wait_for_reply:
 
-        /* When can we expect the next event? */
-        if(ev_first) {
-            if(ev_first->ev_time.tv_sec == 0) {
+		/* When can we expect the next event? */
+		if (ev_first) {
+			if (ev_first->ev_time.tv_sec == 0) {
 		wait_time = 0;
-	    }
-	    else {
-                wait_time = timeval_diff(&ev_first->ev_time, &current_time);
-		if(wait_time < 0) wait_time = 0;
-	    }
-	    if(ev_first->ev_type == EV_TYPE_PING) {
+		}
+		else {
+				wait_time = timeval_diff(&ev_first->ev_time, &current_time);
+		if (wait_time < 0) wait_time = 0;
+		}
+		if (ev_first->ev_type == EV_TYPE_PING) {
 		/* make sure that we wait enough, so that the inter-ping delay is
 		 * bigger than 'interval' */
-                if(wait_time < interval) {
-		    lt = timeval_diff(&current_time, &last_send_time);
-		    if(lt < interval) {
+				if (wait_time < interval) {
+			lt = timeval_diff(&current_time, &last_send_time);
+			if (lt < interval) {
 			wait_time = interval-lt;
-		    }
-		    else {
+			}
+			else {
 			wait_time = 0;
-		    }
+			}
 		}
-            }
+			}
 
 #if defined( DEBUG ) || defined( _DEBUG )
-            if( trace_flag ) {
-                fprintf(stderr, "next event in %d ms (%s)\n", wait_time / 100, ev_first->host);
-            }
+			if ( trace_flag ) {
+				fprintf(stderr, "next event in %d ms (%s)\n", wait_time / 100, ev_first->host);
+			}
 #endif
-        }
-        else {
-            wait_time = interval;
-        }
+		}
+		else {
+			wait_time = interval;
+		}
 
-        /* Receive replies */
-        /* (this is what sleeps during each loop iteration) */
-        if(wait_for_reply(wait_time)) {
-            while(wait_for_reply(0)); /* process other replies in the queue */
-        }
+		/* Receive replies */
+		/* (this is what sleeps during each loop iteration) */
+		if (wait_for_reply(wait_time)) {
+			while(wait_for_reply(0)); /* process other replies in the queue */
+		}
 
-        gettimeofday( &current_time, &tz );
+		gettimeofday( &current_time, &tz );
 
-        /* Print report */
-        if( report_interval && ( loop_flag || count_flag ) &&
-            ( timeval_diff ( &current_time, &last_report_time ) > report_interval ) )
-        {
-            print_per_system_splits();
-            last_report_time = current_time;
-        }
-    }
+		/* Print report */
+		if ( report_interval && ( loop_flag || count_flag ) &&
+			( timeval_diff ( &current_time, &last_report_time ) > report_interval ) )
+		{
+			print_per_system_splits();
+			last_report_time = current_time;
+		}
+	}
 }
 /* }}} */
 
@@ -1009,49 +990,49 @@ void main_loop(void) /* {{{ */
 ************************************************************/
 void finish(void) /* {{{ */
 {
-    int i;
-    HOST_ENTRY *h;
+	int i;
+	HOST_ENTRY *h;
 
-    gettimeofday( &end_time, &tz );
+	gettimeofday( &end_time, &tz );
 
-    /* tot up unreachables */
-    for( i = 0; i < num_hosts; i++ )
-    {
-        h = table[i];
+	/* tot up unreachables */
+	for( i = 0; i < num_hosts; i++ )
+	{
+		h = table[i];
 
-        if( !h->num_recv )
-        {
-            num_unreachable++;
+		if ( !h->num_recv )
+		{
+			num_unreachable++;
 
-            if( verbose_flag || unreachable_flag )
-            {
-                printf( "%s", h->host );
+			if ( verbose_flag || unreachable_flag )
+			{
+				printf( "%s", h->host );
 
-                if( verbose_flag ) 
-                    printf( " is unreachable" );
-                
-                printf( "\n" );
-            
-            }/* IF */
-        }/* IF */
-    }/* FOR */
+				if ( verbose_flag ) 
+					printf( " is unreachable" );
+				
+				printf( "\n" );
+			
+			}
+		}
+	}/* FOR */
 
-    if( count_flag || loop_flag )
-        print_per_system_stats();
+	if ( count_flag || loop_flag )
+		print_per_system_stats();
 #if defined( DEBUG ) || defined( _DEBUG )
-    else if( print_per_system_flag )
-        print_per_system_stats();
+	else if ( print_per_system_flag )
+		print_per_system_stats();
 #endif /* DEBUG || _DEBUG */
 
-    if( stats_flag )
-        print_global_stats();
+	if ( stats_flag )
+		print_global_stats();
 
-    if( num_noaddress )
-        exit( 2 );
-    else if( num_alive != num_hosts )
-        exit( 1 ); 
-    
-    exit(0);
+	if ( num_noaddress )
+		exit( 2 );
+	else if ( num_alive != num_hosts )
+		exit( 1 ); 
+	
+	exit(0);
 
 }
 /* }}} */
@@ -1066,92 +1047,92 @@ void finish(void) /* {{{ */
 ************************************************************/
 void print_per_system_stats(void) /* {{{ */
 {
-    int i, j, avg;
-    HOST_ENTRY *h;
-    char *buf;
-    int bufsize;
-    int resp;
+	int i, j, avg;
+	HOST_ENTRY *h;
+	char *buf;
+	int bufsize;
+	int resp;
 
-    bufsize = max_hostname_len + 1;
-    buf = ( char* )malloc( bufsize );
+	bufsize = max_hostname_len + 1;
+	buf = ( char* )malloc( bufsize );
 
-    if( !buf )
-        crash_and_burn( "can't malloc print buf" );
+	if ( !buf )
+		crash_and_burn( "can't malloc print buf" );
 
-    memset( buf, 0, bufsize );
+	memset( buf, 0, bufsize );
 
-    fflush( stdout );
+	fflush( stdout );
 
-    if( verbose_flag || per_recv_flag )
-        fprintf( stderr, "\n" );
+	if ( verbose_flag || per_recv_flag )
+		fprintf( stderr, "\n" );
 
-    for( i = 0; i < num_hosts; i++ )
-    {
-        h = table[i];
-        fprintf( stderr, "%s%s :", h->host, h->pad );
+	for( i = 0; i < num_hosts; i++ )
+	{
+		h = table[i];
+		fprintf( stderr, "%s%s :", h->host, h->pad );
 
-        if( report_all_rtts_flag )
-        {
-            for( j = 0; j < h->num_sent; j++ )
-            {
-                if( ( resp = h->resp_times[j] ) >= 0 )
-                    fprintf( stderr, " %d.%02d", resp / 100, resp % 100 );
-                else
-                    fprintf( stderr, " -" );
+		if ( report_all_rtts_flag )
+		{
+			for( j = 0; j < h->num_sent; j++ )
+			{
+				if ( ( resp = h->resp_times[j] ) >= 0 )
+					fprintf( stderr, " %d.%02d", resp / 100, resp % 100 );
+				else
+					fprintf( stderr, " -" );
 
-            }/* FOR */
-          
-            fprintf( stderr, "\n" );
-      
-        }/* IF */
-        else
-        {
-            if( h->num_recv <= h->num_sent )
-            {
-                fprintf( stderr, " xmt/rcv/%%loss = %d/%d/%d%%",
-                    h->num_sent, h->num_recv, h->num_sent > 0 ?
-                    ( ( h->num_sent - h->num_recv ) * 100 ) / h->num_sent : 0 );
+			}/* FOR */
+		  
+			fprintf( stderr, "\n" );
+	  
+		}
+		else
+		{
+			if ( h->num_recv <= h->num_sent )
+			{
+				fprintf( stderr, " xmt/rcv/%%loss = %d/%d/%d%%",
+					h->num_sent, h->num_recv, h->num_sent > 0 ?
+					( ( h->num_sent - h->num_recv ) * 100 ) / h->num_sent : 0 );
 
-            }/* IF */
-            else
-            {
-                fprintf( stderr, " xmt/rcv/%%return = %d/%d/%d%%",
-                    h->num_sent, h->num_recv,
-                    ( ( h->num_recv * 100 ) / h->num_sent ) );
-          
-            }/* ELSE */
-          
-            if( h->num_recv )
-            {
-                avg = h->total_time / h->num_recv;
-                fprintf( stderr, ", min/avg/max = %s", sprint_tm( h->min_reply ) );
-                fprintf( stderr, "/%s", sprint_tm( avg ) );
-                fprintf( stderr, "/%s", sprint_tm( h->max_reply ) );
-          
-            }/* IF */
-          
-            fprintf(stderr, "\n");
+			}
+			else
+			{
+				fprintf( stderr, " xmt/rcv/%%return = %d/%d/%d%%",
+					h->num_sent, h->num_recv,
+					( ( h->num_recv * 100 ) / h->num_sent ) );
+		  
+			}
+		  
+			if ( h->num_recv )
+			{
+				avg = h->total_time / h->num_recv;
+				fprintf( stderr, ", min/avg/max = %s", sprint_tm( h->min_reply ) );
+				fprintf( stderr, "/%s", sprint_tm( avg ) );
+				fprintf( stderr, "/%s", sprint_tm( h->max_reply ) );
+		  
+			}
+		  
+			fprintf(stderr, "\n");
 
-        }/* ELSE */
+		}
 
 #if defined( DEBUG ) || defined( _DEBUG )
-        if( sent_times_flag )
-        {
-            for( j = 0; j < h->num_sent; j++ )
-            {
-                if( ( resp = h->sent_times[j] ) >= 0 )
-                    fprintf( stderr, " %s", sprint_tm( resp ) );
-                else
-                    fprintf( stderr, " -" );
-              
-                fprintf( stderr, "\n" );
+		if ( sent_times_flag )
+		{
+			for( j = 0; j < h->num_sent; j++ )
+			{
+				if ( ( resp = h->sent_times[j] ) >= 0 )
+					fprintf( stderr, " %s", sprint_tm( resp ) );
+				else
+					fprintf( stderr, " -" );
+			  
+				fprintf( stderr, "\n" );
 
-            }/* FOR */
-        }/* IF */
+			}/* FOR */
+		}
 #endif /* DEBUG || _DEBUG */
-    }/* FOR */
+	}/* FOR */
   
-    free( buf );
+	free( buf );
 
 }
 /* }}} */
@@ -1165,64 +1146,64 @@ void print_per_system_stats(void) /* {{{ */
 ************************************************************/
 void print_per_system_splits(void) /* {{{ */
 {
-    int i, avg;
-    HOST_ENTRY *h;
-    char *buf;
-    int bufsize;
-    struct tm *curr_tm;
+	int i, avg;
+	HOST_ENTRY *h;
+	char *buf;
+	int bufsize;
+	struct tm *curr_tm;
 
-    bufsize = max_hostname_len + 1;
-    buf = ( char* )malloc( bufsize );
-    if( !buf )
-        crash_and_burn( "can't malloc print buf" );
+	bufsize = max_hostname_len + 1;
+	buf = ( char* )malloc( bufsize );
+	if ( !buf )
+		crash_and_burn( "can't malloc print buf" );
 
-    memset( buf, 0, bufsize );
+	memset( buf, 0, bufsize );
 
-    fflush( stdout );
+	fflush( stdout );
 
-    if( verbose_flag || per_recv_flag )
-        fprintf( stderr, "\n" );
+	if ( verbose_flag || per_recv_flag )
+		fprintf( stderr, "\n" );
 
-    curr_tm = localtime( ( time_t* )&current_time.tv_sec );
-    fprintf( stderr, "[%2.2d:%2.2d:%2.2d]\n", curr_tm->tm_hour,
-        curr_tm->tm_min, curr_tm->tm_sec );
+	curr_tm = localtime( ( time_t* )&current_time.tv_sec );
+	fprintf( stderr, "[%2.2d:%2.2d:%2.2d]\n", curr_tm->tm_hour,
+		curr_tm->tm_min, curr_tm->tm_sec );
 
-    for( i = 0; i < num_hosts; i++ )
-    {
-        h = table[i];
-        fprintf( stderr, "%s%s :", h->host, h->pad );
+	for( i = 0; i < num_hosts; i++ )
+	{
+		h = table[i];
+		fprintf( stderr, "%s%s :", h->host, h->pad );
 
-        if( h->num_recv_i <= h->num_sent_i )
-        {
-            fprintf( stderr, " xmt/rcv/%%loss = %d/%d/%d%%",
-                h->num_sent_i, h->num_recv_i, h->num_sent_i > 0 ?
-                ( ( h->num_sent_i - h->num_recv_i ) * 100 ) / h->num_sent_i : 0 );
+		if ( h->num_recv_i <= h->num_sent_i )
+		{
+			fprintf( stderr, " xmt/rcv/%%loss = %d/%d/%d%%",
+				h->num_sent_i, h->num_recv_i, h->num_sent_i > 0 ?
+				( ( h->num_sent_i - h->num_recv_i ) * 100 ) / h->num_sent_i : 0 );
 
-        }/* IF */
-        else
-        {
-            fprintf( stderr, " xmt/rcv/%%return = %d/%d/%d%%",
-                h->num_sent_i, h->num_recv_i, h->num_sent_i > 0 ?
-                ( ( h->num_recv_i * 100 ) / h->num_sent_i ) : 0 );
+		}
+		else
+		{
+			fprintf( stderr, " xmt/rcv/%%return = %d/%d/%d%%",
+				h->num_sent_i, h->num_recv_i, h->num_sent_i > 0 ?
+				( ( h->num_recv_i * 100 ) / h->num_sent_i ) : 0 );
 
-        }/* ELSE */
+		}
 
-        if( h->num_recv_i )
-        {
-            avg = h->total_time_i / h->num_recv_i;
-            fprintf( stderr, ", min/avg/max = %s", sprint_tm( h->min_reply_i ) );
-            fprintf( stderr, "/%s", sprint_tm( avg ) );
-            fprintf( stderr, "/%s", sprint_tm( h->max_reply_i ) );
-        
-        }/* IF */
-        
-        fprintf( stderr, "\n" );
-        h->num_sent_i = h->num_recv_i = h->max_reply_i =
-            h->min_reply_i = h->total_time_i = 0;
-    
-    }/* FOR */
+		if ( h->num_recv_i )
+		{
+			avg = h->total_time_i / h->num_recv_i;
+			fprintf( stderr, ", min/avg/max = %s", sprint_tm( h->min_reply_i ) );
+			fprintf( stderr, "/%s", sprint_tm( avg ) );
+			fprintf( stderr, "/%s", sprint_tm( h->max_reply_i ) );
+		
+		}
+		
+		fprintf( stderr, "\n" );
+		h->num_sent_i = h->num_recv_i = h->max_reply_i =
+			h->min_reply_i = h->total_time_i = 0;
+	
+	}/* FOR */
 
-    free( buf );
+	free( buf );
 
 }
 /* }}} */
@@ -1236,33 +1217,33 @@ void print_per_system_splits(void) /* {{{ */
 ************************************************************/
 void print_global_stats(void) /* {{{ */
 {
-    fflush( stdout );
-    fprintf( stderr, "\n" );
-    fprintf( stderr, " %7d targets\n", num_hosts );
-    fprintf( stderr, " %7d alive\n", num_alive );
-    fprintf( stderr, " %7d unreachable\n" ,num_unreachable );
-    fprintf( stderr, " %7d unknown addresses\n", num_noaddress );
-    fprintf( stderr, "\n" );
-    fprintf( stderr, " %7d timeouts (waiting for response)\n", num_timeout );
-    fprintf( stderr, " %7d ICMP Echos sent\n", num_pingsent );
-    fprintf( stderr, " %7d ICMP Echo Replies received\n", num_pingreceived );
-    fprintf( stderr, " %7d other ICMP received\n", num_othericmprcvd );
-    fprintf( stderr, "\n" );
+	fflush( stdout );
+	fprintf( stderr, "\n" );
+	fprintf( stderr, " %7d targets\n", num_hosts );
+	fprintf( stderr, " %7d alive\n", num_alive );
+	fprintf( stderr, " %7d unreachable\n" ,num_unreachable );
+	fprintf( stderr, " %7d unknown addresses\n", num_noaddress );
+	fprintf( stderr, "\n" );
+	fprintf( stderr, " %7d timeouts (waiting for response)\n", num_timeout );
+	fprintf( stderr, " %7d ICMP Echos sent\n", num_pingsent );
+	fprintf( stderr, " %7d ICMP Echo Replies received\n", num_pingreceived );
+	fprintf( stderr, " %7d other ICMP received\n", num_othericmprcvd );
+	fprintf( stderr, "\n" );
 
-    if (total_replies == 0) {
-        min_reply = 0;
-        max_reply = 0;
-        total_replies = 1;
-        sum_replies = 0;
-    }
+	if (total_replies == 0) {
+		min_reply = 0;
+		max_reply = 0;
+		total_replies = 1;
+		sum_replies = 0;
+	}
 
-    fprintf( stderr, " %s ms (min round trip time)\n", sprint_tm( min_reply ) );
-    fprintf( stderr, " %s ms (avg round trip time)\n",
-        sprint_tm( ( int )( sum_replies / total_replies ) ) );
-    fprintf( stderr, " %s ms (max round trip time)\n", sprint_tm( max_reply ) );
-    fprintf( stderr, " %12.3f sec (elapsed real time)\n",
-        timeval_diff( &end_time, &start_time ) / 100000.0 );
-    fprintf( stderr, "\n" );
+	fprintf( stderr, " %s ms (min round trip time)\n", sprint_tm( min_reply ) );
+	fprintf( stderr, " %s ms (avg round trip time)\n",
+		sprint_tm( ( int )( sum_replies / total_replies ) ) );
+	fprintf( stderr, " %s ms (max round trip time)\n", sprint_tm( max_reply ) );
+	fprintf( stderr, " %12.3f sec (elapsed real time)\n",
+		timeval_diff( &end_time, &start_time ) / 100000.0 );
+	fprintf( stderr, "\n" );
 }
 /* }}} */
 
@@ -1281,53 +1262,53 @@ void print_global_stats(void) /* {{{ */
 ************************************************************/
 int send_ping( int s, HOST_ENTRY *h ) /* {{{ */
 {
-    int n;
-    int myseq;
-    int ret = 1;
+	int n;
+	int myseq;
+	int ret = 1;
 
-    gettimeofday( &h->last_send_time, &tz );
-    myseq = seqmap_add(h->i, h->num_sent, &h->last_send_time);
+	gettimeofday( &h->last_send_time, &tz );
+	myseq = seqmap_add(h->i, h->num_sent, &h->last_send_time);
 
 #if defined(DEBUG) || defined(_DEBUG)
-    if( trace_flag )
-        printf( "sending [%d] to %s\n", h->num_sent, h->host );
+	if ( trace_flag )
+		printf( "sending [%d] to %s\n", h->num_sent, h->host );
 #endif /* DEBUG || _DEBUG */
 
-    n = socket_sendto_ping(s, (struct sockaddr *) &h->saddr, h->saddr_len, myseq, ident);
+	n = socket_sendto_ping(s, (struct sockaddr *) &h->saddr, h->saddr_len, myseq, ident);
 
-    if(
-        (n < 0)
+	if (
+		(n < 0)
 #if defined( EHOSTDOWN )
-        && errno != EHOSTDOWN
+		&& errno != EHOSTDOWN
 #endif
-    ) {
-        if( verbose_flag ) {
-            print_warning( "%s: error while sending ping: %s\n", h->host, strerror( errno ) );
-        }
-        
-        if( !loop_flag )
-            h->resp_times[h->num_sent] = RESP_ERROR;
+	) {
+		if ( verbose_flag ) {
+			print_warning( "%s: error while sending ping: %s\n", h->host, strerror( errno ) );
+		}
+		
+		if ( !loop_flag )
+			h->resp_times[h->num_sent] = RESP_ERROR;
 
-        ret = 0;
-    }
-    else {
-        /* mark this trial as outstanding */
-        if( !loop_flag )
-            h->resp_times[h->num_sent] = RESP_WAITING;
+		ret = 0;
+	}
+	else {
+		/* mark this trial as outstanding */
+		if ( !loop_flag )
+			h->resp_times[h->num_sent] = RESP_WAITING;
 
 #if defined( DEBUG ) || defined( _DEBUG )
-        if( sent_times_flag )
-            h->sent_times[h->num_sent] = timeval_diff( &h->last_send_time, &start_time );
+		if ( sent_times_flag )
+			h->sent_times[h->num_sent] = timeval_diff( &h->last_send_time, &start_time );
 #endif
-    }
+	}
 
-    h->num_sent++;
-    h->num_sent_i++;
-    h->waiting++;
-    num_pingsent++;
-    last_send_time = h->last_send_time;
+	h->num_sent++;
+	h->num_sent_i++;
+	h->waiting++;
+	num_pingsent++;
+	last_send_time = h->last_send_time;
 
-    return(ret);
+	return(ret);
 }
 /* }}} */
 
@@ -1342,228 +1323,217 @@ int send_ping( int s, HOST_ENTRY *h ) /* {{{ */
 ************************************************************/
 int wait_for_reply(long wait_time) /* {{{ */
 {
-    int result;
-    static char buffer[4096];
-    struct sockaddr_storage response_addr;
-    socklen_t response_addr_len;
-    struct ip *ip;
-    int hlen = 0;
-    FPING_ICMPHDR *icp;
-    int n, avg;
-    HOST_ENTRY *h;
-    long this_reply;
-    int this_count;
-    struct timeval *sent_time;
-    SEQMAP_VALUE *seqmap_value;
+	int result;
+	static char buffer[4096];
+	struct sockaddr_storage response_addr;
+	socklen_t response_addr_len;
+	struct ip *ip;
+	int hlen = 0;
+	FPING_ICMPHDR *icp;
+	int n, avg;
+	HOST_ENTRY *h;
+	long this_reply;
+	int this_count;
+	struct timeval *sent_time;
+	SEQMAP_VALUE *seqmap_value;
 
-    response_addr_len = sizeof(struct sockaddr_storage);
-    result = recvfrom_wto( s, buffer, sizeof(buffer), (struct sockaddr *) &response_addr, &response_addr_len, wait_time );
+	response_addr_len = sizeof(struct sockaddr_storage);
+	result = recvfrom_wto( s, buffer, sizeof(buffer), (struct sockaddr *) &response_addr, &response_addr_len, wait_time );
 
-    if( result < 0 )
-        return 0;   /* timeout */
+	if ( result < 0 )
+		return 0;   /* timeout */
   
 #if defined( DEBUG ) || defined( _DEBUG )
-    if( randomly_lose_flag )
-    {
-        if( ( random() & 0x07 ) <= lose_factor )
-            return 0;
+	if ( randomly_lose_flag )
+	{
+		if ( ( random() & 0x07 ) <= lose_factor )
+			return 0;
 
-    }
+	}
 #endif
 
-    ip = ( struct ip* )buffer;
+	ip = ( struct ip* )buffer;
 
 #ifndef IPV6
 #if defined( __alpha__ ) && __STDC__ && !defined( __GLIBC__ )
-    /* The alpha headers are decidedly broken.
-     * Using an ANSI compiler, it provides ip_vhl instead of ip_hl and
-     * ip_v.  So, to get ip_hl, we mask off the bottom four bits.
-     */
-    hlen = ( ip->ip_vhl & 0x0F ) << 2;
+	/* The alpha headers are decidedly broken.
+	 * Using an ANSI compiler, it provides ip_vhl instead of ip_hl and
+	 * ip_v.  So, to get ip_hl, we mask off the bottom four bits.
+	 */
+	hlen = ( ip->ip_vhl & 0x0F ) << 2;
 #else
-    hlen = ip->ip_hl << 2;
+	hlen = ip->ip_hl << 2;
 #endif /* defined(__alpha__) && __STDC__ */
-    if( result < hlen + ICMP_MINLEN )
+	if ( result < hlen + ICMP_MINLEN )
 #else
-    if( result < sizeof(FPING_ICMPHDR) )
+	if ( result < sizeof(FPING_ICMPHDR) )
 #endif
-    {
-        if( verbose_flag )
-        {
-            char buf[INET6_ADDRSTRLEN];
-            getnameinfo((struct sockaddr *)&response_addr, response_addr_len, buf, INET6_ADDRSTRLEN, NULL, 0, NI_NUMERICHOST);
-            printf( "received packet too short for ICMP (%d bytes from %s)\n", result, buf);
-        }
-        return( 1 ); /* too short */ 
-    }/* IF */
+	{
+		if ( verbose_flag )
+		{
+			char buf[INET6_ADDRSTRLEN];
+			getnameinfo((struct sockaddr *)&response_addr, response_addr_len, buf, INET6_ADDRSTRLEN, NULL, 0, NI_NUMERICHOST);
+			printf( "received packet too short for ICMP (%d bytes from %s)\n", result, buf);
+		}
+		return( 1 ); /* too short */ 
+	}
 
-    gettimeofday( &current_time, &tz );
+	gettimeofday( &current_time, &tz );
 
-    icp = ( FPING_ICMPHDR* )( buffer + hlen );
+	icp = ( FPING_ICMPHDR* )( buffer + hlen );
 #ifndef IPV6
-    if( icp->icmp_type != ICMP_ECHOREPLY )
+	if ( icp->icmp_type != ICMP_ECHOREPLY )
 #else
-    if( icp->icmp6_type != ICMP6_ECHO_REPLY )
+	if ( icp->icmp6_type != ICMP6_ECHO_REPLY )
 #endif
-    {
-        /* handle some problem */
-        if( handle_random_icmp( icp, (struct sockaddr *)&response_addr, response_addr_len ) )
-            num_othericmprcvd++;
-        return 1;
-    }/* IF */
-
-#ifndef IPV6
-    if( ntohs(icp->icmp_id) != ident )
-#else
-    if( ntohs(icp->icmp6_id) != ident )
-#endif
-        return 1; /* packet received, but not the one we are looking for! */
+	{
+		/* handle some problem */
+		if ( handle_random_icmp( icp, (struct sockaddr *)&response_addr, response_addr_len ) )
+			num_othericmprcvd++;
+		return 1;
+	}
 
 #ifndef IPV6
-    seqmap_value = seqmap_fetch(ntohs(icp->icmp_seq), &current_time);
+	if ( ntohs(icp->icmp_id) != ident )
 #else
-    seqmap_value = seqmap_fetch(ntohs(icp->icmp6_seq), &current_time);
+	if ( ntohs(icp->icmp6_id) != ident )
 #endif
-    if(seqmap_value == NULL) {
-        return 1;
-    }
+		return 1; /* packet received, but not the one we are looking for! */
 
-    num_pingreceived++;
+#ifndef IPV6
+	seqmap_value = seqmap_fetch(ntohs(icp->icmp_seq), &current_time);
+#else
+	seqmap_value = seqmap_fetch(ntohs(icp->icmp6_seq), &current_time);
+#endif
+	if (seqmap_value == NULL) {
+		return 1;
+	}
 
-    n = seqmap_value->host_nr;
-    h = table[n];
-    sent_time  = &seqmap_value->ping_ts;
-    this_count = seqmap_value->ping_count;
-    this_reply = timeval_diff( &current_time, sent_time );
+	num_pingreceived++;
 
-    if( loop_flag || h->resp_times[this_count] == RESP_WAITING )
-    {
-        /* only for non-duplicates: */
-        h->waiting = 0;
-        h->timeout = timeout;
-        h->num_recv++;
-        h->num_recv_i++;
+	n = seqmap_value->host_nr;
+	h = table[n];
+	sent_time  = &seqmap_value->ping_ts;
+	this_count = seqmap_value->ping_count;
+	this_reply = timeval_diff( &current_time, sent_time );
 
-        if( !max_reply      || this_reply > max_reply ) max_reply = this_reply;
-        if( !min_reply      || this_reply < min_reply ) min_reply = this_reply;
-        if( !h->max_reply   || this_reply > h->max_reply ) h->max_reply = this_reply;
-        if( !h->min_reply   || this_reply < h->min_reply ) h->min_reply = this_reply;
-        if( !h->max_reply_i || this_reply > h->max_reply_i ) h->max_reply_i = this_reply;
-        if( !h->min_reply_i || this_reply < h->min_reply_i ) h->min_reply_i = this_reply;
-        sum_replies += this_reply;
-        h->total_time += this_reply;
-        h->total_time_i += this_reply;
-        total_replies++;
-    }
+	if ( loop_flag || h->resp_times[this_count] == RESP_WAITING )
+	{
+		/* only for non-duplicates: */
+		h->waiting = 0;
+		h->timeout = timeout;
+		h->num_recv++;
+		h->num_recv_i++;
 
-    /* received ping is cool, so process it */
-    h->num_recv_total++;
+		if ( !max_reply      || this_reply > max_reply ) max_reply = this_reply;
+		if ( !min_reply      || this_reply < min_reply ) min_reply = this_reply;
+		if ( !h->max_reply   || this_reply > h->max_reply ) h->max_reply = this_reply;
+		if ( !h->min_reply   || this_reply < h->min_reply ) h->min_reply = this_reply;
+		if ( !h->max_reply_i || this_reply > h->max_reply_i ) h->max_reply_i = this_reply;
+		if ( !h->min_reply_i || this_reply < h->min_reply_i ) h->min_reply_i = this_reply;
+		sum_replies += this_reply;
+		h->total_time += this_reply;
+		h->total_time_i += this_reply;
+		total_replies++;
+	}
+
+	/* received ping is cool, so process it */
+	h->num_recv_total++;
 
 #if defined( DEBUG ) || defined( _DEBUG )
-    if( trace_flag ) 
-        printf( "received [%d] from %s\n", this_count, h->host );
+	if ( trace_flag ) 
+		printf( "received [%d] from %s\n", this_count, h->host );
 #endif /* DEBUG || _DEBUG */
 
-    /* note reply time in array, probably */
-    if( !loop_flag )
-    {
-        if( ( this_count >= 0 ) && ( this_count < trials ) )
-        {
-            if( h->resp_times[this_count] >= 0 )
-            {
-                if( !per_recv_flag )
-                {
-                    fprintf( stderr, "%s : duplicate for [%d], %d bytes, %s ms",
-                        h->host, this_count, result, sprint_tm( this_reply ) );
+	/* note reply time in array, probably */
+	if (!loop_flag) {
+		if ( ( this_count >= 0 ) && ( this_count < trials ) ) {
+			if ( h->resp_times[this_count] >= 0 ) {
+				if ( !per_recv_flag ) {
+					fprintf( stderr, "%s : duplicate for [%d], %d bytes, %s ms",
+						h->host, this_count, result, sprint_tm( this_reply ) );
 
-                    if(addr_cmp((struct sockaddr *)&response_addr, (struct sockaddr *)&h->saddr)) {
-                        char buf[INET6_ADDRSTRLEN];
-                        getnameinfo((struct sockaddr *)&response_addr, response_addr_len, buf, INET6_ADDRSTRLEN, NULL, 0, NI_NUMERICHOST);
-                        fprintf( stderr, " [<- %s]", buf);
-                    }
-                    fprintf( stderr, "\n" );
-    
-                }/* IF */
-            }/* IF */
-            else
-                h->resp_times[this_count] = this_reply;
-        
-        }/* IF */
-        else
-        {
-            /* count is out of bounds?? */
-            fprintf( stderr, "%s : duplicate for [%d], %d bytes, %s ms\n",
-                h->host, this_count, result, sprint_tm( this_reply ) );
-        
-        }/* ELSE */
-    }/* IF */
+					if (addr_cmp((struct sockaddr *)&response_addr, (struct sockaddr *)&h->saddr)) {
+						char buf[INET6_ADDRSTRLEN];
+						getnameinfo((struct sockaddr *)&response_addr, response_addr_len, buf, INET6_ADDRSTRLEN, NULL, 0, NI_NUMERICHOST);
+						fprintf( stderr, " [<- %s]", buf);
+					}
+					fprintf( stderr, "\n" );
+				}
+			} else {
+				h->resp_times[this_count] = this_reply;
+			}
+		} else {
+			/* count is out of bounds?? */
+			fprintf( stderr, "%s : duplicate for [%d], %d bytes, %s ms\n",
+				h->host, this_count, result, sprint_tm( this_reply ) );
+		
+		}
+	}
 
-    if( h->num_recv == 1 )
-    {
-        num_alive++;
-        if( verbose_flag || alive_flag )
-        {
-            printf( "%s", h->host );
+	if (h->num_recv == 1) {
+		num_alive++;
+		if ( verbose_flag || alive_flag )
+		{
+			printf( "%s", h->host );
 
-            if( verbose_flag )
-                printf( " is alive" );
+			if ( verbose_flag )
+				printf( " is alive" );
 
-            if( elapsed_flag )
-                printf( " (%s ms)", sprint_tm( this_reply ) );
+			if ( elapsed_flag )
+				printf( " (%s ms)", sprint_tm( this_reply ) );
 
-            if(addr_cmp((struct sockaddr *)&response_addr, (struct sockaddr *)&h->saddr)) {
-                char buf[INET6_ADDRSTRLEN];
-                getnameinfo((struct sockaddr *)&response_addr, response_addr_len, buf, INET6_ADDRSTRLEN, NULL, 0, NI_NUMERICHOST);
-                fprintf( stderr, " [<- %s]", buf);
-            }
+			if (addr_cmp((struct sockaddr *)&response_addr, (struct sockaddr *)&h->saddr)) {
+				char buf[INET6_ADDRSTRLEN];
+				getnameinfo((struct sockaddr *)&response_addr, response_addr_len, buf, INET6_ADDRSTRLEN, NULL, 0, NI_NUMERICHOST);
+				fprintf( stderr, " [<- %s]", buf);
+			}
 
-            printf( "\n" );
-        
-        }/* IF */
-    }/* IF */
+			printf( "\n" );
+		}
+	}
 
-    if( per_recv_flag )
-    {
-        if(timestamp_flag) {
-            printf("[%lu.%06lu] ",
-                 (unsigned long)current_time.tv_sec,
-                 (unsigned long)current_time.tv_usec);
-        }
-        avg = h->total_time / h->num_recv;
-        printf( "%s%s : [%d], %d bytes, %s ms",
-            h->host, h->pad, this_count, result, sprint_tm( this_reply ) );
-        printf( " (%s avg, ", sprint_tm( avg ) );
-    
-        if( h->num_recv <= h->num_sent ) {
-            printf( "%d%% loss)",
-                ( ( h->num_sent - h->num_recv ) * 100 ) / h->num_sent );
+	if ( per_recv_flag ) {
+		if (timestamp_flag) {
+			printf("[%lu.%06lu] ",
+				 (unsigned long)current_time.tv_sec,
+				 (unsigned long)current_time.tv_usec);
+		}
+		avg = h->total_time / h->num_recv;
+		printf( "%s%s : [%d], %d bytes, %s ms",
+			h->host, h->pad, this_count, result, sprint_tm( this_reply ) );
+		printf( " (%s avg, ", sprint_tm( avg ) );
+	
+		if ( h->num_recv <= h->num_sent ) {
+			printf( "%d%% loss)",
+				( ( h->num_sent - h->num_recv ) * 100 ) / h->num_sent );
 
-        }
-        else {
-            printf( "%d%% return)",
-                ( h->num_recv_total * 100 ) / h->num_sent );
-        
-        }
+		}
+		else {
+			printf( "%d%% return)",
+				( h->num_recv_total * 100 ) / h->num_sent );
+		
+		}
 
-        if(addr_cmp((struct sockaddr *)&response_addr, (struct sockaddr *)&h->saddr)) {
-            char buf[INET6_ADDRSTRLEN];
-            getnameinfo((struct sockaddr *)&response_addr, response_addr_len, buf, INET6_ADDRSTRLEN, NULL, 0, NI_NUMERICHOST);
-            fprintf( stderr, " [<- %s]", buf);
-        }
-        
-        printf( "\n" );
-    
-    }/* IF */
+		if (addr_cmp((struct sockaddr *)&response_addr, (struct sockaddr *)&h->saddr)) {
+			char buf[INET6_ADDRSTRLEN];
+			getnameinfo((struct sockaddr *)&response_addr, response_addr_len, buf, INET6_ADDRSTRLEN, NULL, 0, NI_NUMERICHOST);
+			fprintf( stderr, " [<- %s]", buf);
+		}
+		
+		printf( "\n" );
+	
+	}
 
-    /* remove this job, if we are done */
-    if((count_flag && h->num_recv >= count) ||
-       (!loop_flag && !count_flag && h->num_recv))
-    {
-        remove_job(h);
-    }
-    
-    fflush( stdout );
-    return num_jobs;
+	/* remove this job, if we are done */
+	if ((count_flag && h->num_recv >= count) ||
+	   (!loop_flag && !count_flag && h->num_recv))
+	{
+		remove_job(h);
+	}
+	
+	fflush( stdout );
+	return num_jobs;
 
 }
 /* }}} */
@@ -1573,104 +1543,104 @@ int wait_for_reply(long wait_time) /* {{{ */
 ************************************************************/
 int handle_random_icmp(FPING_ICMPHDR *p, struct sockaddr *addr, socklen_t addr_len) /* {{{ */
 {
-    FPING_ICMPHDR *sent_icmp;
-    unsigned char *c;
-    HOST_ENTRY *h;
-    SEQMAP_VALUE *seqmap_value;
-    char addr_ascii[INET6_ADDRSTRLEN];
-    unsigned short icmp_type;
-    unsigned short icmp_code;
-    unsigned short sent_icmp_type;
-    unsigned short sent_icmp_seq;
-    unsigned short sent_icmp_id;
+	FPING_ICMPHDR *sent_icmp;
+	unsigned char *c;
+	HOST_ENTRY *h;
+	SEQMAP_VALUE *seqmap_value;
+	char addr_ascii[INET6_ADDRSTRLEN];
+	unsigned short icmp_type;
+	unsigned short icmp_code;
+	unsigned short sent_icmp_type;
+	unsigned short sent_icmp_seq;
+	unsigned short sent_icmp_id;
 
-    getnameinfo((struct sockaddr *) addr, addr_len, addr_ascii, INET6_ADDRSTRLEN, NULL, 0, NI_NUMERICHOST);
+	getnameinfo((struct sockaddr *) addr, addr_len, addr_ascii, INET6_ADDRSTRLEN, NULL, 0, NI_NUMERICHOST);
 
-    c = ( unsigned char* )p;
+	c = ( unsigned char* )p;
 
-    sent_icmp = ( FPING_ICMPHDR* )( c + 28 );
+	sent_icmp = ( FPING_ICMPHDR* )( c + 28 );
 #ifndef IPV6
-    icmp_type = p->icmp_type;
-    icmp_code = p->icmp_code;
-    sent_icmp_type = sent_icmp->icmp_type;
-    sent_icmp_seq  = sent_icmp->icmp_seq;
-    sent_icmp_id   = sent_icmp->icmp_id;
+	icmp_type = p->icmp_type;
+	icmp_code = p->icmp_code;
+	sent_icmp_type = sent_icmp->icmp_type;
+	sent_icmp_seq  = sent_icmp->icmp_seq;
+	sent_icmp_id   = sent_icmp->icmp_id;
 #else
-    icmp_type = p->icmp6_type;
-    icmp_code = p->icmp6_code;
-    sent_icmp_type = sent_icmp->icmp6_type;
-    sent_icmp_seq  = sent_icmp->icmp6_seq;
-    sent_icmp_id   = sent_icmp->icmp6_id;
+	icmp_type = p->icmp6_type;
+	icmp_code = p->icmp6_code;
+	sent_icmp_type = sent_icmp->icmp6_type;
+	sent_icmp_seq  = sent_icmp->icmp6_seq;
+	sent_icmp_id   = sent_icmp->icmp6_id;
 #endif
 
-    switch(icmp_type)
-    {
-    case ICMP_UNREACH:
-        seqmap_value = seqmap_fetch(ntohs(sent_icmp_seq), &current_time);
+	switch(icmp_type)
+	{
+	case ICMP_UNREACH:
+		seqmap_value = seqmap_fetch(ntohs(sent_icmp_seq), &current_time);
 
-        if( ( sent_icmp_type == ICMP_ECHO ) &&
-            ( ntohs(sent_icmp_id) == ident ) &&
-            ( seqmap_value != NULL ) )
-        {
-            /* this is a response to a ping we sent */
-            h = table[ntohs(sent_icmp_seq) % num_hosts];
-            
-            if( icmp_code > ICMP_UNREACH_MAXTYPE ) {
-                print_warning("ICMP Unreachable (Invalid Code) from %s for ICMP Echo sent to %s",
-                    addr_ascii, h->host );
-            }
-            else {
-                print_warning("%s from %s for ICMP Echo sent to %s",
-                        icmp_unreach_str[icmp_code], addr_ascii, h->host);
-            }
+		if ( ( sent_icmp_type == ICMP_ECHO ) &&
+			( ntohs(sent_icmp_id) == ident ) &&
+			( seqmap_value != NULL ) )
+		{
+			/* this is a response to a ping we sent */
+			h = table[ntohs(sent_icmp_seq) % num_hosts];
+			
+			if ( icmp_code > ICMP_UNREACH_MAXTYPE ) {
+				print_warning("ICMP Unreachable (Invalid Code) from %s for ICMP Echo sent to %s",
+					addr_ascii, h->host );
+			}
+			else {
+				print_warning("%s from %s for ICMP Echo sent to %s",
+					    icmp_unreach_str[icmp_code], addr_ascii, h->host);
+			}
 
-            if( inet_addr( h->host ) == INADDR_NONE )
-                print_warning(" (%s)", addr_ascii);
-            
-            print_warning("\n" );
-        }
-        return 1;
+			if ( inet_addr( h->host ) == INADDR_NONE )
+				print_warning(" (%s)", addr_ascii);
+			
+			print_warning("\n" );
+		}
+		return 1;
 
-    case ICMP_SOURCEQUENCH:
-    case ICMP_REDIRECT:
-    case ICMP_TIMXCEED:
-    case ICMP_PARAMPROB:
-        seqmap_value = seqmap_fetch(ntohs(sent_icmp_seq), &current_time);
+	case ICMP_SOURCEQUENCH:
+	case ICMP_REDIRECT:
+	case ICMP_TIMXCEED:
+	case ICMP_PARAMPROB:
+		seqmap_value = seqmap_fetch(ntohs(sent_icmp_seq), &current_time);
 
-        if( ( sent_icmp_type == ICMP_ECHO ) &&
-            ( ntohs(sent_icmp_id) == ident ) &&
-            ( seqmap_value != NULL ) )
-        {
-            /* this is a response to a ping we sent */
-            h = table[ntohs(sent_icmp_seq) % num_hosts];
-            if(icmp_type <= ICMP_TYPE_STR_MAX) {
-                fprintf( stderr, "%s from %s for ICMP Echo sent to %s",
-                    icmp_type_str[icmp_type], addr_ascii, h->host );
-            }
-            else {
-                fprintf( stderr, "ICMP %d from %s for ICMP Echo sent to %s",
-                    icmp_type, addr_ascii, h->host );
-            }
-      
-            if( inet_addr( h->host ) == INADDR_NONE )
-                fprintf( stderr, " (%s)", addr_ascii );
+		if ( ( sent_icmp_type == ICMP_ECHO ) &&
+			( ntohs(sent_icmp_id) == ident ) &&
+			( seqmap_value != NULL ) )
+		{
+			/* this is a response to a ping we sent */
+			h = table[ntohs(sent_icmp_seq) % num_hosts];
+			if (icmp_type <= ICMP_TYPE_STR_MAX) {
+				fprintf( stderr, "%s from %s for ICMP Echo sent to %s",
+					icmp_type_str[icmp_type], addr_ascii, h->host );
+			}
+			else {
+				fprintf( stderr, "ICMP %d from %s for ICMP Echo sent to %s",
+					icmp_type, addr_ascii, h->host );
+			}
 
-            fprintf( stderr, "\n" );
-        
-        }/* IF */
+			if ( inet_addr( h->host ) == INADDR_NONE )
+				fprintf( stderr, " (%s)", addr_ascii );
 
-        return 2;
+			fprintf( stderr, "\n" );
+		
+		}
 
-    /* no way to tell whether any of these are sent due to our ping */
-    /* or not (shouldn't be, of course), so just discard            */
-    case ICMP_TSTAMP:
-    case ICMP_TSTAMPREPLY:
-    case ICMP_IREQ:
-    case ICMP_IREQREPLY:
-    case ICMP_MASKREQ:
-    case ICMP_MASKREPLY:
-    default:
-        return 0;
+		return 2;
+
+	/* no way to tell whether any of these are sent due to our ping */
+	/* or not (shouldn't be, of course), so just discard            */
+	case ICMP_TSTAMP:
+	case ICMP_TSTAMPREPLY:
+	case ICMP_IREQ:
+	case ICMP_IREQREPLY:
+	case ICMP_MASKREQ:
+	case ICMP_MASKREPLY:
+	default:
+		return 0;
 	}
 }
 /* }}} */
@@ -1750,13 +1720,13 @@ void add_name(char *name) /* {{{ */
 			}
 
 			if (name_flag) {
-                char nameaddrbuf[512];
-                snprintf(nameaddrbuf, sizeof(nameaddrbuf)/sizeof(char), "%s (%s)", printname, addrbuf);
-                add_addr(name, nameaddrbuf, res->ai_addr, res->ai_addrlen);
-            } else {
-                add_addr(name, addrbuf, res->ai_addr, res->ai_addrlen);
+				char nameaddrbuf[512];
+				snprintf(nameaddrbuf, sizeof(nameaddrbuf)/sizeof(char), "%s (%s)", printname, addrbuf);
+				add_addr(name, nameaddrbuf, res->ai_addr, res->ai_addrlen);
+			} else {
+				add_addr(name, addrbuf, res->ai_addr, res->ai_addrlen);
 			}
-        } else {
+		} else {
 			add_addr(name, printname, res->ai_addr, res->ai_addrlen);
 		}
 
@@ -1775,64 +1745,59 @@ void add_name(char *name) /* {{{ */
 ************************************************************/
 void add_addr(char *name, char *host, struct sockaddr *ipaddr, socklen_t ipaddr_len) /* {{{ */
 {
-    HOST_ENTRY *p;
-    int n, *i;
+	HOST_ENTRY *p;
+	int n, *i;
 
-    p = ( HOST_ENTRY* )malloc( sizeof( HOST_ENTRY ) );
-    if( !p )
-        crash_and_burn( "can't allocate HOST_ENTRY" );
+	p = (HOST_ENTRY*) malloc(sizeof(HOST_ENTRY));
+	if (!p)
+		crash_and_burn( "can't allocate HOST_ENTRY" );
 
-    memset( ( char* ) p, 0, sizeof( HOST_ENTRY ) );
+	memset((char*) p, 0, sizeof(HOST_ENTRY));
 
-    p->name = strdup(name);
-    p->host = strdup(host);
-    memcpy(&p->saddr, ipaddr, ipaddr_len);
-    p->saddr_len = ipaddr_len;
-    p->timeout = timeout;
-    p->running = 1;
-    p->min_reply = 0;
+	p->name = strdup(name);
+	p->host = strdup(host);
+	memcpy(&p->saddr, ipaddr, ipaddr_len);
+	p->saddr_len = ipaddr_len;
+	p->timeout = timeout;
+	p->running = 1;
+	p->min_reply = 0;
 
-    if( strlen( p->host ) > max_hostname_len )
-        max_hostname_len = strlen( p->host );
+	if (strlen(p->host) > max_hostname_len)
+		max_hostname_len = strlen(p->host);
 
-    /* array for response time results */
-    if( !loop_flag )
-    {
-        i = ( int* )malloc( trials * sizeof( int ) );
-        if( !i )
-            crash_and_burn( "can't allocate resp_times array" );
-        
-        for( n = 1; n < trials; n++ )
-            i[n] = RESP_UNUSED;
-        
-        p->resp_times = i;
+	/* array for response time results */
+	if (!loop_flag) {
+		i = (int*) malloc(trials * sizeof(int));
+		if (!i )
+			crash_and_burn("can't allocate resp_times array");
 
-    }/* IF */
+		for (n = 1; n < trials; n++)
+			i[n] = RESP_UNUSED;
+
+		p->resp_times = i;
+	}
 
 #if defined( DEBUG ) || defined( _DEBUG )
-    /* likewise for sent times */
-    if( sent_times_flag )
-    {
-        i = ( int* )malloc( trials * sizeof( int ) );
-        if( !i )
-            crash_and_burn( "can't allocate sent_times array" );
-    
-        for( n = 1; n < trials; n++ )
-            i[n] = RESP_UNUSED;
-        
-        p->sent_times = i;
-    
-    }/* IF */
+	/* likewise for sent times */
+	if (sent_times_flag) {
+		i = (int*) malloc(trials * sizeof(int));
+		if (!i)
+			crash_and_burn("can't allocate sent_times array");
+
+		for (n = 1; n < trials; n++)
+			i[n] = RESP_UNUSED;
+
+		 p->sent_times = i;
+	}
 #endif /* DEBUG || _DEBUG */
 
-    /* schedule first ping */
-    p->ev_type = EV_TYPE_PING;
-    p->ev_time.tv_sec  = 0;
-    p->ev_time.tv_usec = 0;
-    ev_enqueue(p);
+	/* schedule first ping */
+	p->ev_type = EV_TYPE_PING;
+	p->ev_time.tv_sec  = 0;
+	p->ev_time.tv_usec = 0;
+	ev_enqueue(p);
 
-    num_hosts++;
-
+	num_hosts++;
 }
 /* }}} */
 
@@ -1846,16 +1811,15 @@ void add_addr(char *name, char *host, struct sockaddr *ipaddr, socklen_t ipaddr_
 void remove_job( HOST_ENTRY *h ) /* {{{ */
 {
 #if defined( DEBUG ) || defined( _DEBUG )
-    if( trace_flag )
-        printf( "removing job for %s\n", h->host );
+	if (trace_flag)
+		printf( "removing job for %s\n", h->host );
 #endif /* DEBUG || _DEBUG */
 
-    h->running = 0;
-    h->waiting = 0;
-    --num_jobs;
+	h->running = 0;
+	h->waiting = 0;
+	--num_jobs;
 
-    ev_remove(h);
-
+	ev_remove(h);
 }
 /* }}} */
 
@@ -2021,10 +1985,10 @@ select_again:
 	}
 
 	if (nfound == 0)
-		return -1;      /* timeout */
+		return -1;    /* timeout */
 
 	/* recvfrom(int socket, void *restrict buffer, size_t length, int flags, struct sockaddr *restrict address, socklen_t *restrict address_len); */
-	n = recvfrom( s, buf, len, 0, saddr, saddr_len );
+	n = recvfrom(s, buf, len, 0, saddr, saddr_len);
 	if (n < 0)
 		errno_crash_and_burn( "recvfrom" );
 
@@ -2042,7 +2006,7 @@ int addr_cmp(struct sockaddr *a, struct sockaddr *b) /* {{{ */
 	} else {
 		if (a->sa_family == AF_INET) {
 			return ((struct sockaddr_in *) a)->sin_addr.s_addr - ((struct sockaddr_in *) b)->sin_addr.s_addr;
-		} else if(a->sa_family == AF_INET6) {
+		} else if (a->sa_family == AF_INET6) {
 			return memcmp(&((struct sockaddr_in6 *) a)->sin6_addr,
 				&((struct sockaddr_in6 *) b)->sin6_addr,
 				sizeof(((struct sockaddr_in6 *) a)->sin6_addr));

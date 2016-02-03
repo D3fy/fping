@@ -1,4 +1,4 @@
-/* 
+/*
  * fping: fast-ping, file-ping, favorite-ping, funky-ping
  *
  *   Ping a list of target hosts in a round robin fashion.
@@ -42,90 +42,88 @@
 #include <string.h>
 #include <stdlib.h>
 
-char *ping_buffer = 0;
-size_t ping_pkt_size;
+char   *ping_buffer = 0;
+size_t  ping_pkt_size;
 
-int open_ping_socket_ipv4()
+int open_ping_socket_ipv4() /* {{{ */
 {
-    struct protoent *proto;
-    int s;
+	struct protoent *proto;
+	int s;
 
-    /* confirm that ICMP is available on this machine */
-    if( ( proto = getprotobyname( "icmp" ) ) == NULL ) 
-        crash_and_burn( "icmp: unknown protocol" );
+	/* confirm that ICMP is available on this machine */
+	if ((proto = getprotobyname("icmp")) == NULL)
+		crash_and_burn("icmp: unknown protocol");
 
-    /* create raw socket for ICMP calls (ping) */
-    s = socket( AF_INET, SOCK_RAW, proto->p_proto );
-    if( s < 0 ) {
-        /* try non-privileged icmp (works on Mac OSX without privileges, for example) */
-        s = socket( AF_INET, SOCK_DGRAM, proto->p_proto );
-        if( s < 0 ) {
-            errno_crash_and_burn( "can't create socket (must run as root?)" );
-        }
-    }
+	/* create raw socket for ICMP calls (ping) */
+	if ((s = socket(AF_INET, SOCK_RAW, proto->p_proto)) < 0)
+		/* try non-privileged icmp (works on Mac OSX without privileges, for example) */
+		if ((s = socket(AF_INET, SOCK_DGRAM, proto->p_proto)) < 0)
+			errno_crash_and_burn("can't create socket (must run as root?)");
 
-    return s;
+	return s;
 }
+/* }}} */
 
-void init_ping_buffer_ipv4(size_t ping_data_size)
+void init_ping_buffer_ipv4(size_t ping_data_size) /* {{{ */
 {
-    /* allocate ping buffer */
-    ping_pkt_size = ping_data_size + ICMP_MINLEN;
-    ping_buffer = (char *) calloc(1, ping_pkt_size);
-    if(!ping_buffer)
-        crash_and_burn( "can't malloc ping packet" );
+	/* allocate ping buffer */
+	ping_pkt_size = ping_data_size + ICMP_MINLEN;
+	if(!(ping_buffer = (char *) calloc(1, ping_pkt_size)))
+		crash_and_burn("can't malloc ping packet");
 }
+/* }}} */
 
-void socket_set_src_addr_ipv4(int s, FPING_INADDR src_addr)
+void socket_set_src_addr_ipv4(int s, FPING_INADDR src_addr) /* {{{ */
 {
-    struct sockaddr_in sa;
-    memset( &sa, 0, sizeof( sa ) );
-    sa.sin_family = AF_INET;
-    sa.sin_addr = src_addr;
+	struct sockaddr_in sa;
+	memset(&sa, 0, sizeof(sa));
+	sa.sin_family = AF_INET;
+	sa.sin_addr = src_addr;
 
-    if ( bind( s, (struct sockaddr *)&sa, sizeof( sa ) ) < 0 )
-        errno_crash_and_burn( "cannot bind source address" );
+	if (bind(s, (struct sockaddr *) &sa, sizeof( sa )) < 0)
+		errno_crash_and_burn( "cannot bind source address" );
 }
+/* }}} */
 
-unsigned short calcsum(unsigned short *buffer, int length)
+unsigned short calcsum(unsigned short *buffer, int length) /* {{{ */
 {
-    unsigned long sum;
+	unsigned long sum;
 
-    // initialize sum to zero and loop until length (in words) is 0
-    for (sum=0; length>1; length-=2) // sizeof() returns number of bytes, we're interested in number of words
-	sum += *buffer++;	// add 1 word of buffer to sum and proceed to the next
+	/* initialize sum to zero and loop until length (in words) is 0 */
+	for (sum=0; length>1; length-=2) /* sizeof() returns number of bytes, we're interested in number of words */
+		sum += *buffer++;            /* add 1 word of buffer to sum and proceed to the next */
 
-    // we may have an extra byte
-    if (length==1)
-	sum += (char)*buffer;
+	/* we may have an extra byte */
+	if (length==1)
+		sum += (char) *buffer;
 
-    sum = (sum >> 16) + (sum & 0xFFFF); // add high 16 to low 16
-    sum += (sum >> 16);			// add carry
-    return ~sum;
+	sum = (sum >> 16) + (sum & 0xFFFF); /* add high 16 to low 16 */
+	sum += (sum >> 16);                 /* add carry */
+	return ~sum;
 }
+/* }}} */
 
-int socket_sendto_ping_ipv4(int s, struct sockaddr *saddr, socklen_t saddr_len, uint16_t icmp_seq_nr, uint16_t icmp_id_nr)
+int socket_sendto_ping_ipv4(int s, struct sockaddr *saddr, socklen_t saddr_len, uint16_t icmp_seq_nr, uint16_t icmp_id_nr) /* {{{ */
 {
-    struct icmp *icp;
-    int n;
+	struct icmp *icp;
+	int n;
 
-    icp = (struct icmp *) ping_buffer;
+	icp = (struct icmp *) ping_buffer;
 
-    icp->icmp_type = ICMP_ECHO;
-    icp->icmp_code = 0;
-    icp->icmp_cksum = 0;
-    icp->icmp_seq = htons(icmp_seq_nr);
-    icp->icmp_id = htons(icmp_id_nr);
+	icp->icmp_type = ICMP_ECHO;
+	icp->icmp_code = 0;
+	icp->icmp_cksum = 0;
+	icp->icmp_seq = htons(icmp_seq_nr);
+	icp->icmp_id = htons(icmp_id_nr);
 
-    if (random_data_flag) {
-        for (n = ((void*)&icp->icmp_data - (void *)icp); n < ping_pkt_size; ++n) {
-            ping_buffer[n] = random() & 0xFF;
-        }
-    }
+	if (random_data_flag)
+		for (n = ((void*)&icp->icmp_data - (void *)icp); n < ping_pkt_size; ++n)
+			ping_buffer[n] = random() & 0xFF;
 
-    icp->icmp_cksum = calcsum((unsigned short *) icp, ping_pkt_size);
+	icp->icmp_cksum = calcsum((unsigned short *) icp, ping_pkt_size);
 
-    n = sendto(s, icp, ping_pkt_size, 0, saddr, saddr_len);
+	n = sendto(s, icp, ping_pkt_size, 0, saddr, saddr_len);
 
-    return n;
+	return n;
 }
+/* }}} */
