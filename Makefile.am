@@ -23,7 +23,7 @@ if IPV4
 sbin_PROGRAMS      += fping
 dist_man_MANS      += man/fping.8
 fping_DEPENDENCIES  = config.h
-fping_SOURCES       = $(CORE_SRC) src/socket4.c
+fping_SOURCES       = $(CORE_SRC)
 endif
 
 if IPV6
@@ -31,7 +31,7 @@ sbin_PROGRAMS       += fping6
 dist_man_MANS       += man/fping6.8
 fping6_CFLAGS        = $(AM_CFLAGS) -DIPV6
 fping6_DEPENDENCIES  = config.h
-fping6_SOURCES       = $(CORE_SRC) src/socket6.c
+fping6_SOURCES       = $(CORE_SRC)
 endif
 
 man/%.8: man/@PACKAGE@.pod

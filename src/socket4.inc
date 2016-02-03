@@ -42,10 +42,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-char   *ping_buffer = 0;
-size_t  ping_pkt_size;
-
-int open_ping_socket_ipv4() /* {{{ */
+int open_ping_socket(void) /* {{{ */
 {
 	struct protoent *proto;
 	int s;
@@ -64,7 +61,7 @@ int open_ping_socket_ipv4() /* {{{ */
 }
 /* }}} */
 
-void init_ping_buffer_ipv4(size_t ping_data_size) /* {{{ */
+void init_ping_buffer(size_t ping_data_size) /* {{{ */
 {
 	/* allocate ping buffer */
 	ping_pkt_size = ping_data_size + ICMP_MINLEN;
@@ -73,7 +70,7 @@ void init_ping_buffer_ipv4(size_t ping_data_size) /* {{{ */
 }
 /* }}} */
 
-void socket_set_src_addr_ipv4(int s, FPING_INADDR src_addr) /* {{{ */
+void socket_set_src_addr(int s, FPING_INADDR src_addr) /* {{{ */
 {
 	struct sockaddr_in sa;
 	memset(&sa, 0, sizeof(sa));
@@ -85,7 +82,7 @@ void socket_set_src_addr_ipv4(int s, FPING_INADDR src_addr) /* {{{ */
 }
 /* }}} */
 
-unsigned short calcsum(unsigned short *buffer, int length) /* {{{ */
+unsigned short _calcsum(unsigned short *buffer, int length) /* {{{ */
 {
 	unsigned long sum;
 
@@ -103,7 +100,7 @@ unsigned short calcsum(unsigned short *buffer, int length) /* {{{ */
 }
 /* }}} */
 
-int socket_sendto_ping_ipv4(int s, struct sockaddr *saddr, socklen_t saddr_len, uint16_t icmp_seq_nr, uint16_t icmp_id_nr) /* {{{ */
+int socket_sendto_ping(int s, struct sockaddr *saddr, socklen_t saddr_len, uint16_t icmp_seq_nr, uint16_t icmp_id_nr) /* {{{ */
 {
 	struct icmp *icp;
 	int n;
@@ -120,10 +117,13 @@ int socket_sendto_ping_ipv4(int s, struct sockaddr *saddr, socklen_t saddr_len, 
 		for (n = ((void*)&icp->icmp_data - (void *)icp); n < ping_pkt_size; ++n)
 			ping_buffer[n] = random() & 0xFF;
 
-	icp->icmp_cksum = calcsum((unsigned short *) icp, ping_pkt_size);
+	icp->icmp_cksum = _calcsum((unsigned short *) icp, ping_pkt_size);
 
 	n = sendto(s, icp, ping_pkt_size, 0, saddr, saddr_len);
 
 	return n;
 }
 /* }}} */
+
+/* vi:syntax=c
+ */

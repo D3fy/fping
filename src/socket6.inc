@@ -42,10 +42,7 @@
 
 #include <netinet/icmp6.h>
 
-char   *ping_buffer = 0;
-size_t  ping_pkt_size;
-
-int open_ping_socket_ipv6(void) /* {{{ */
+int open_ping_socket(void) /* {{{ */
 {
 	struct protoent *proto;
 	int s;
@@ -64,7 +61,7 @@ int open_ping_socket_ipv6(void) /* {{{ */
 }
 /* }}} */
 
-void init_ping_buffer_ipv6(size_t ping_data_size) /* {{{ */
+void init_ping_buffer(size_t ping_data_size) /* {{{ */
 {
 	/* allocate ping buffer */
 	ping_pkt_size = ping_data_size + sizeof(struct icmp6_hdr);
@@ -73,7 +70,7 @@ void init_ping_buffer_ipv6(size_t ping_data_size) /* {{{ */
 }
 /* }}} */
 
-void socket_set_src_addr_ipv6(int s, FPING_INADDR src_addr) /* {{{ */
+void socket_set_src_addr(int s, FPING_INADDR src_addr) /* {{{ */
 {
 	struct sockaddr_in6 sa;
 	memset( &sa, 0, sizeof( sa ) );
@@ -85,7 +82,7 @@ void socket_set_src_addr_ipv6(int s, FPING_INADDR src_addr) /* {{{ */
 }
 /* }}} */
 
-int socket_sendto_ping_ipv6(int s, struct sockaddr *saddr, socklen_t saddr_len, uint16_t icmp_seq_nr, uint16_t icmp_id_nr) /* {{{ */
+int socket_sendto_ping(int s, struct sockaddr *saddr, socklen_t saddr_len, uint16_t icmp_seq_nr, uint16_t icmp_id_nr) /* {{{ */
 {
 	struct icmp6_hdr *icp;
 	int n;
@@ -107,3 +104,6 @@ int socket_sendto_ping_ipv6(int s, struct sockaddr *saddr, socklen_t saddr_len, 
 	return n;
 }
 /* }}} */
+
+/* vi:syntax=c
+ */
