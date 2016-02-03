@@ -486,7 +486,7 @@ int main(int argc, char **argv) /* {{{ */
 			/* This option is ignored for compatibility reasons ("select timeout" is not meaningful anymore) */
 			break;
 		case 'O':
-			if (sscanf(optarg,"%i",&tos)){
+			if (sscanf(optarg,"%i",&tos)) {
 				if (setsockopt(s, IPPROTO_IP, IP_TOS, &tos, sizeof(tos)))
 					perror("setting type of service octet IP_TOS");
 			} else {
@@ -539,7 +539,7 @@ int main(int argc, char **argv) /* {{{ */
 			prog, count, MAX_COUNT );
 		exit(1);
 	}
-	if (alive_flag || unreachable_flag)
+	if (alive_flag || unreachable_flag) {
 		verbose_flag = 0;
 	}
 	if (count_flag) {
@@ -680,7 +680,7 @@ int main(int argc, char **argv) /* {{{ */
 	if (!num_hosts)
 		exit(1);
 
-	if (src_addr_present) {
+	if (src_addr_present)
 		socket_set_src_addr(s, src_addr);
 
 	/* allocate array to hold outstanding ping requests */
