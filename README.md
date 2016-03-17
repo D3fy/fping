@@ -1,5 +1,4 @@
-[![Build Status](https://travis-ci.org/schweikert/fping.svg?branch=develop)](https://travis-ci.org/schweikert/fping)
-[![Coverage Status](https://coveralls.io/repos/schweikert/fping/badge.svg?branch=develop&service=github)](https://coveralls.io/github/schweikert/fping?branch=develop)
+[![Build Status](https://travis-ci.org/D3fy/fping.svg)](https://travis-ci.org/schweikert/fping)
 
 # fping 3
 
@@ -9,7 +8,7 @@ story: Roland Schemers did publish a first version of it in 1992 and it has
 established itself since then as a standard tool.
 
 _Current maintainer_:  
-  David Schweikert \<david@schweikert.ch\>
+  Dan Molik \<dan@d3fy.net\>
 
 _Website_:  
   http://fping.org/

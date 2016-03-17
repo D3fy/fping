@@ -38,13 +38,6 @@ extern "C" {
 #include "fping.h"
 #include "options.h"
 
-/* if compiling for Windows, use this separate set
-  (too difficult to ifdef all the autoconf defines) */
-#ifdef WIN32
-/* Windows includes */
-
-#else
-
 #include <stdio.h>
 #include <errno.h>
 #include <time.h>
@@ -90,7 +83,6 @@ extern "C" {
 #include <sys/select.h>
 #endif
 
-#endif
 
 extern char *optarg;
 extern int   optind,opterr;
