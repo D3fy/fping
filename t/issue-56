@@ -1,0 +1,18 @@
+#!/usr/bin/perl -w
+
+use strict;
+use warnings;
+
+use Test::More;
+use t::common;
+
+subtest "regression testing for github issue #56" => sub {
+	my $cmd = Test::Command->new(cmd => "$FPING -t100 -p100 -C3 255.255.255.255");
+	$cmd->exit_is_num(1);
+	$cmd->stdout_is_eq("");
+	$cmd->stderr_is_eq("\n255.255.255.255 : - - -\n");
+};
+
+done_testing;
+
+# vi:syntax=perl

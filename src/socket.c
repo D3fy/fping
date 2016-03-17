@@ -33,47 +33,11 @@
 #include "fping.h"
 #include "config.h"
 
-int open_ping_socket_ipv4();
-int open_ping_socket_ipv6();
-void init_ping_buffer_ipv4(size_t ping_data_size);
-void init_ping_buffer_ipv6(size_t ping_data_size);
-void socket_set_src_addr_ipv4(int s, FPING_INADDR src_addr);
-void socket_set_src_addr_ipv6(int s, FPING_INADDR src_addr);
-int socket_sendto_ping_ipv4(int s, struct sockaddr *saddr, socklen_t saddr_len, uint16_t icmp_seq_nr, uint16_t icmp_id_nr);
-int socket_sendto_ping_ipv6(int s, struct sockaddr *saddr, socklen_t saddr_len, uint16_t icmp_seq_nr, uint16_t icmp_id_nr);
+char   *ping_buffer = 0;
+size_t  ping_pkt_size;
 
-int open_ping_socket()
-{
-#ifndef IPV6
-    return open_ping_socket_ipv4();
+#ifdef IPV6
+#include "socket6.inc"
 #else
-    return open_ping_socket_ipv6();
+#include "socket4.inc"
 #endif
-}
-
-void init_ping_buffer(size_t ping_data_size)
-{
-#ifndef IPV6
-    return init_ping_buffer_ipv4(ping_data_size);
-#else
-    return init_ping_buffer_ipv6(ping_data_size);
-#endif
-}
-
-void socket_set_src_addr(int s, FPING_INADDR src_addr)
-{
-#ifndef IPV6
-    socket_set_src_addr_ipv4(s, src_addr);
-#else
-    socket_set_src_addr_ipv6(s, src_addr);
-#endif
-}
-
-int socket_sendto_ping(int s, struct sockaddr *saddr, socklen_t saddr_len, uint16_t icmp_seq_nr, uint16_t icmp_id_nr)
-{
-#ifndef IPV6
-    return socket_sendto_ping_ipv4(s, saddr, saddr_len, icmp_seq_nr, icmp_id_nr);
-#else
-    return socket_sendto_ping_ipv6(s, saddr, saddr_len, icmp_seq_nr, icmp_id_nr);
-#endif
-}

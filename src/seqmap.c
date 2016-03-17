@@ -1,4 +1,4 @@
-/* 
+/*
  * fping: fast-ping, file-ping, favorite-ping, funky-ping
  *
  *   Ping a list of target hosts in a round robin fashion.
@@ -57,60 +57,61 @@ static unsigned int seqmap_next_id = 0;
 #define SEQMAP_TIMEOUT_IN_S       10
 #define SEQMAP_UNASSIGNED_HOST_NR UINT_MAX
 
-void seqmap_init()
+void seqmap_init() /* {{{ */
 {
-    seqmap_map = calloc(SEQMAP_MAXSEQ, sizeof(SEQMAP_VALUE));
-    if(seqmap_map == NULL) {
-        perror("malloc error (can't allocate seqmap_map)");
-    }
+	seqmap_map = calloc(SEQMAP_MAXSEQ, sizeof(SEQMAP_VALUE));
+	if (seqmap_map == NULL)
+		perror("malloc error (can't allocate seqmap_map)");
 }
+/* }}} */
 
-unsigned int seqmap_add(unsigned int host_nr, unsigned int ping_count, struct timeval *now)
+unsigned int seqmap_add(unsigned int host_nr, unsigned int ping_count, struct timeval *now) /* {{{ */
 {
-    unsigned int current_id;
-    SEQMAP_VALUE *next_value;
+	unsigned int current_id;
+	SEQMAP_VALUE *next_value;
 
-    if(!seqmap_map) {
-        fprintf(stderr, "fping internal error: seqmap not initialized.\n");
-        exit(4);
-    }
+	if (!seqmap_map) {
+		fprintf(stderr, "fping internal error: seqmap not initialized.\n");
+		exit(4);
+	}
 
-    /* check if expired (note that unused seqmap values will have fields set to
-     * 0, so will be seen as expired */
-    next_value = &seqmap_map[seqmap_next_id];
-    if(next_value->ping_ts.tv_sec != 0 && (now->tv_sec - next_value->ping_ts.tv_sec) < SEQMAP_TIMEOUT_IN_S) {
-        fprintf(stderr, "fping error: not enough sequence numbers available! (expire_timeout=%d, host_nr=%d, ping_count=%d, seqmap_next_id=%d)\n",
-            SEQMAP_TIMEOUT_IN_S, host_nr, ping_count, seqmap_next_id);
-        exit(4);
-    }
+	/* check if expired (note that unused seqmap values will have fields set to
+	 * 0, so will be seen as expired
+	 */
+	next_value = &seqmap_map[seqmap_next_id];
+	if (next_value->ping_ts.tv_sec != 0 && (now->tv_sec - next_value->ping_ts.tv_sec) < SEQMAP_TIMEOUT_IN_S) {
+		fprintf(stderr, "fping error: not enough sequence numbers available! (expire_timeout=%d, host_nr=%d, ping_count=%d, seqmap_next_id=%d)\n",
+			SEQMAP_TIMEOUT_IN_S, host_nr, ping_count, seqmap_next_id);
+		exit(4);
+	}
 
-    /* store the value */
-    next_value->host_nr = host_nr;
-    next_value->ping_count = ping_count;
-    next_value->ping_ts.tv_sec = now->tv_sec;
-    next_value->ping_ts.tv_usec = now->tv_usec;
+	/* store the value */
+	next_value->host_nr = host_nr;
+	next_value->ping_count = ping_count;
+	next_value->ping_ts.tv_sec = now->tv_sec;
+	next_value->ping_ts.tv_usec = now->tv_usec;
 
-    /* increase next id */
-    current_id = seqmap_next_id;
-    seqmap_next_id = (seqmap_next_id + 1) % SEQMAP_MAXSEQ;
+	/* increase next id */
+	current_id = seqmap_next_id;
+	seqmap_next_id = (seqmap_next_id + 1) % SEQMAP_MAXSEQ;
 
-    return current_id;
+	return current_id;
 }
+/* }}} */
 
-SEQMAP_VALUE *seqmap_fetch(unsigned int id, struct timeval *now)
+SEQMAP_VALUE *seqmap_fetch(unsigned int id, struct timeval *now) /* {{{ */
 {
-    SEQMAP_VALUE *value;
+	SEQMAP_VALUE *value;
 
-    if(id > SEQMAP_MAXSEQ) {
-        return NULL;
-    }
+	if (id > SEQMAP_MAXSEQ)
+		return NULL;
 
-    value = &seqmap_map[id];
+	value = &seqmap_map[id];
 
-    /* verify that value is not expired */
-    if(now->tv_sec - value->ping_ts.tv_sec >= SEQMAP_TIMEOUT_IN_S) {
-        return NULL;
-    }
+	/* verify that value is not expired */
+	if (now->tv_sec - value->ping_ts.tv_sec >= SEQMAP_TIMEOUT_IN_S)
+		return NULL;
 
-    return value;
+	return value;
 }
+/* }}} */

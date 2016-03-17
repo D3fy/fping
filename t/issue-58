@@ -1,0 +1,18 @@
+#!/usr/bin/perl -w
+
+use strict;
+use warnings;
+
+use Test::More;
+use t::common;
+
+subtest "regression testing for github issue #58" => sub {
+	my $cmd = Test::Command->new(cmd => "$FPING -a -g 2001:db8:120:4161::4/64");
+	$cmd->exit_is_num(1);
+	$cmd->stdout_is_eq("");
+	$cmd->stderr_is_eq("Error: -g works only with IPv4 addresses\n");
+};
+
+done_testing;
+
+# vi:syntax=perl
