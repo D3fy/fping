@@ -25,11 +25,7 @@ statistics.
 
 
 %build
-if [ ! -f ./configure ] ; then
-	./autogen.sh
-fi
-
-%configure --enable-ipv4 --enable-ipv6
+%configure --enable-ipv6
 make %{?_smp_mflags}
 
 
@@ -59,15 +55,7 @@ fi
 
 
 %changelog
-* Mon Dec 24 2012 Marcus Vinicius Ferreira <ferreira.mv@gmail.com>
-- Missing './configure' script when cloning from master.
-- Making 'fping6'.
-- Fix setuid permission to 'rwsr-xr-x'.
-- doc files.
-- Replacing setuid permission if 'setcap' is present on post-install.
-- Using 'http://fping.org/dist/' for release source distributions.
-
-* Mon Jul 16 2012 Stephen Schaefer <sschaefer@acm.org>
-- Initial build
+* Thu Mar 15 2016 Dan Molik <dan@d3fy.net>
+- refactoring
 
 # vim:ft=spec:
