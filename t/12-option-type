@@ -8,7 +8,7 @@ use t::common;
 
 for my $arg (qw(i b B c C H i O p Q r t)) {
 	subtest "testing usage on option $arg" => sub {
-		my $cmd = Test::Command->new(cmd => "$FPING -$arg xxx");
+		my $cmd = t::Command->new(cmd => "$FPING -$arg xxx");
 		$cmd->exit_is_num(1);
 		$cmd->stdout_is_eq("");
 		$cmd->stderr_like(qr{Usage:});

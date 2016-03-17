@@ -14,20 +14,20 @@ use t::common;
 #  -T n       ignored (for compatibility with fping 2.4)
 
 subtest "fping -R" => sub {
-	my $cmd = Test::Command->new(cmd => "$FPING -q -R -c3 -p100 127.0.0.1");
+	my $cmd = t::Command->new(cmd => "$FPING -q -R -c3 -p100 127.0.0.1");
 	$cmd->exit_is_num(0);
 	$cmd->stdout_is_eq("");
 	$cmd->stderr_like(qr{127\.0\.0\.1 : xmt/rcv/%loss = 3/3/0%.*});
 };
 subtest "fping6 -R" => sub {
-	my $cmd = Test::Command->new(cmd => "$FPING6 -q -R -c3 -p100 ::1");
+	my $cmd = t::Command->new(cmd => "$FPING6 -q -R -c3 -p100 ::1");
 	$cmd->exit_is_num(0);
 	$cmd->stdout_is_eq("");
 	$cmd->stderr_like(qr{::1 : xmt/rcv/%loss = 3/3/0%.*});
 };
 # fping -r tested in test-4-options-a-b.pl
 subtest "fping -s" => sub {
-	my $cmd = Test::Command->new(cmd => "$FPING -s 127.0.0.1");
+	my $cmd = t::Command->new(cmd => "$FPING -s 127.0.0.1");
 	$cmd->exit_is_num(0);
 	$cmd->stdout_is_eq("127.0.0.1 is alive\n");
 	$cmd->stderr_like(qr{\s*
@@ -48,7 +48,7 @@ subtest "fping -s" => sub {
 });
 };
 subtest "fping -s (no host reachable)" => sub {
-	my $cmd = Test::Command->new(cmd => "$FPING -r0 -t100 -s 8.8.0.0");
+	my $cmd = t::Command->new(cmd => "$FPING -r0 -t100 -s 8.8.0.0");
 	$cmd->exit_is_num(1);
 	$cmd->stdout_is_eq("8.8.0.0 is unreachable\n");
 	$cmd->stderr_like(qr{\s*
@@ -69,13 +69,13 @@ subtest "fping -s (no host reachable)" => sub {
 });
 };
 subtest "fping -S" => sub {
-	my $cmd = Test::Command->new(cmd => "$FPING -S 127.0.0.1 127.0.0.1");
+	my $cmd = t::Command->new(cmd => "$FPING -S 127.0.0.1 127.0.0.1");
 	$cmd->exit_is_num(0);
 	$cmd->stdout_is_eq("127.0.0.1 is alive\n");
 	$cmd->stderr_is_eq("");
 };
 subtest "fping6 -S" => sub {
-	my $cmd = Test::Command->new(cmd => "$FPING6 -S ::1 ::1");
+	my $cmd = t::Command->new(cmd => "$FPING6 -S ::1 ::1");
 	$cmd->exit_is_num(0);
 	$cmd->stdout_is_eq("::1 is alive\n");
 	$cmd->stderr_is_eq("");

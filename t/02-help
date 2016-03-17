@@ -10,7 +10,7 @@ my $I_HELP = "   -I if      bind to a particular interface\n";
 $I_HELP = '' if $^O eq 'darwin';
 
 subtest "fping -h" => sub {
-	my $cmd = Test::Command->new(cmd => "$FPING -h");
+	my $cmd = t::Command->new(cmd => "$FPING -h");
 	$cmd->exit_is_num(0);
 	$cmd->stdout_is_eq(<<END);
 
@@ -51,13 +51,13 @@ END
 	$cmd->stderr_is_eq("");
 };
 subtest "fping -v" => sub {
-	my $cmd = Test::Command->new(cmd => "$FPING -v");
+	my $cmd = t::Command->new(cmd => "$FPING -v");
 	$cmd->exit_is_num(0);
 	$cmd->stdout_like(qr{$FPING: Version \S+\n$FPING: comments to david\@schweikert\.ch\n});
 	$cmd->stderr_is_eq("");
 };
 subtest "fping with unknown option" => sub {
-	my $cmd = Test::Command->new(cmd => "$FPING -Z");
+	my $cmd = t::Command->new(cmd => "$FPING -Z");
 	$cmd->exit_is_num(1);
 	$cmd->stdout_is_eq("");
 	if ($^O eq 'darwin') {

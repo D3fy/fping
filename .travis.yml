@@ -1,9 +1,4 @@
-# travis-ci.org configuration
-# 
 language: c
-env:
-    global:
-        - secure: "CoI8hwHH1yfQoQxIfWGRS0WfTyScox+5aJn0fDDgz2uKrrIxmBvIw/WKX8wcSiV6fLmLuwgNkKqSM3hdO4qaG+JxfWcuEiZZHm+kxSGMkWbGb/fvAI+gHg8ldKyYttcIX71O5rlZiC2QpNKQi2v18S6pI5p8eqnx7DYx4YrmguQ="
 compiler:
     - gcc
 before_install:
@@ -11,13 +6,8 @@ before_install:
     - sudo apt-get install traceroute
     - traceroute google.com
 install:
-    - ci/build-1-autotools.sh
-    - curl -L http://cpanmin.us | perl - --sudo App::cpanminus
-    - cpanm --sudo Test::Command
+    -
 script:
     - ci/build-2-install.sh
     - env PATH=`pwd`/src:$PATH prove ci/test-*.pl
     - ci/test-tarball.sh
-after_success:
-    - ci/coveralls.sh
-    - ci/deploy-bintray.sh

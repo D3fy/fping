@@ -16,19 +16,19 @@ use t::common;
 # fping -n -> test-14-internet-hosts
 
 subtest "fping -O" => sub {
-	my $cmd = Test::Command->new(cmd => "$FPING -O 2 127.0.0.1");
+	my $cmd = t::Command->new(cmd => "$FPING -O 2 127.0.0.1");
 	$cmd->exit_is_num(0);
 	$cmd->stdout_is_eq("127.0.0.1 is alive\n");
 	$cmd->stderr_is_eq("");
 };
 subtest "fping -q" => sub {
-	my $cmd = Test::Command->new(cmd => "$FPING -q -p 100 -c 3 127.0.0.1");
+	my $cmd = t::Command->new(cmd => "$FPING -q -p 100 -c 3 127.0.0.1");
 	$cmd->exit_is_num(0);
 	$cmd->stdout_is_eq("");
 	$cmd->stderr_like(qr{127\.0\.0\.1 : xmt/rcv/%loss = 3/3/0%, min/avg/max = 0\.\d+/0\.\d+/0\.\d+\n});
 };
 subtest "fping -Q" => sub {
-	my $cmd = Test::Command->new(cmd => "$FPING -Q 1 -p 400 -c 4 127.0.0.1");
+	my $cmd = t::Command->new(cmd => "$FPING -Q 1 -p 400 -c 4 127.0.0.1");
 	$cmd->exit_is_num(0);
 	$cmd->stdout_is_eq("");
 	$cmd->stderr_like(qr{\[\d+:\d+:\d+\]

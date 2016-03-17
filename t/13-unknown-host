@@ -7,13 +7,13 @@ use Test::More;
 use t::common;
 
 subtest "fping" => sub {
-	my $cmd = Test::Command->new(cmd => "$FPING nosuchname.example.com");
+	my $cmd = t::Command->new(cmd => "$FPING nosuchname.example.com");
 	$cmd->exit_is_num(1);
 	$cmd->stdout_is_eq("");
 	$cmd->stderr_like(qr{^nosuchname\.example\.com: .*not (known|found)});
 };
 subtest "fping6" => sub {
-	my $cmd = Test::Command->new(cmd => "$FPING6 nosuchname.example.com");
+	my $cmd = t::Command->new(cmd => "$FPING6 nosuchname.example.com");
 	$cmd->exit_is_num(1);
 	$cmd->stdout_is_eq("");
 	$cmd->stderr_like(qr{^nosuchname\.example\.com: .*not (known|found)});

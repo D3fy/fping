@@ -5,8 +5,8 @@ package t::common;
 use strict;
 use warnings;
 
-use Test::More;
-use Test::Command;
+# use Test::More;
+use t::Command;
 use Cwd;
 
 my $pwd = cwd;
