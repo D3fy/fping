@@ -13,7 +13,7 @@ CONFIG_OPTS+=("PKG_CONFIG_PATH=${BUILD_PREFIX}/lib/pkgconfig")
 CONFIG_OPTS+=("--prefix=${BUILD_PREFIX}")
 
 ./bootstrap
-./configure "${CONFIG_OPTS[@]}"
+./configure --enable-ipv6 "${CONFIG_OPTS[@]}"
 
 make
 sudo setcap cap_net_raw+ep fping
