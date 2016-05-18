@@ -9,6 +9,10 @@ compiler:
   - gcc
   - clang
 
+sudo: required
+dist: trusty
+services: docker
+
 before_install:
   - sudo apt-get install libcap2-bin
 
