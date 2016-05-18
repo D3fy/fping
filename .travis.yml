@@ -9,6 +9,10 @@ compiler:
   - gcc
   - clang
 
+before_install:
+  - sudo apt-get install libcap2-bin
+  - sudo apt-get install traceroute
+
 sudo: true
 
 script: ./ci build
