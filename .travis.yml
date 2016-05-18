@@ -12,6 +12,4 @@ compiler:
 before_install:
   - sudo apt-get install libcap2-bin
 
-sudo: true
-
 script: ./ci build
