@@ -30,8 +30,8 @@ stamp-h1
 man/fping.8
 man/fping6.8
 !man/fping.pod
-build/
-ci/build
+build/*
+!build/.gitkeep
 t/*.trs
 t/*.log
 test-suite.log
