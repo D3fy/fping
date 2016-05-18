@@ -16,5 +16,7 @@ CONFIG_OPTS+=("--prefix=${BUILD_PREFIX}")
 ./configure "${CONFIG_OPTS[@]}"
 
 make
+sudo setcap cap_net_raw+ep fping
+sudo setcap cap_net_raw+ep fping6
 make check
 make install
