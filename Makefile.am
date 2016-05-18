@@ -1,6 +1,5 @@
 AUTOMAKE_OPTIONS = foreign subdir-objects
 ACLOCAL_AMFLAGS = -I build
-EXTRA_DIST =
 
 AM_CFLAGS  =
 AM_CFLAGS += -Wall
@@ -17,6 +16,7 @@ CORE_SRC += src/socket.c
 sbin_PROGRAMS =
 dist_man_MANS =
 
+EXTRA_DIST  = README COPYING
 EXTRA_DIST += man
 
 if IPV4
