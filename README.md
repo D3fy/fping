@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/D3fy/fping.svg)](https://travis-ci.org/schweikert/fping)
+[![Build Status](https://travis-ci.org/D3fy/fping.svg)](https://travis-ci.org/D3fy/fping)
 
 # fping 3
 

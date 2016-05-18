@@ -1,13 +1,12 @@
+# travis ci
+
 language: c
+
+os:
+  - linux
+
 compiler:
-    - gcc
-before_install:
-    - sudo apt-get install libcap2-bin
-    - sudo apt-get install traceroute
-    - traceroute google.com
-install:
-    -
-script:
-    - ci/build-2-install.sh
-    - env PATH=`pwd`/src:$PATH prove ci/test-*.pl
-    - ci/test-tarball.sh
+  - gcc
+  - clang
+
+script: ./ci build
